@@ -1,0 +1,3340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Insumos — Regional Oriente | Grupo Chávez</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --navy:       #0c2340;
+  --navy-2:     #163560;
+  --navy-3:     #1e4a82;
+  --blue:       #2176ae;
+  --blue-lt:    #ddeeff;
+  --teal:       #0d7680;
+  --gold:       #c8962a;
+  --gold-lt:    #fdf4e0;
+  --green:      #1b7a44;
+  --green-lt:   #e4f5ed;
+  --red:        #b5292a;
+  --red-lt:     #fce8e8;
+  --orange:     #c06010;
+  --orange-lt:  #fdf0e4;
+  --gray-1:     #f4f6fa;
+  --gray-2:     #e6eaf2;
+  --gray-3:     #c8cfe0;
+  --gray-text:  #566480;
+  --text:       #12192b;
+  --white:      #ffffff;
+  --r:          9px;
+  --sh:         0 1px 10px rgba(12,35,64,.10);
+  --sh-md:      0 4px 24px rgba(12,35,64,.16);
+  --ff:         'IBM Plex Sans', sans-serif;
+  --ffm:        'IBM Plex Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ff);background:#0a1628;color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* ── TOP BAR ─────────────────── */
+.topbar{
+  background:var(--navy);border-bottom:2px solid var(--gold);
+  height:56px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;position:sticky;top:0;z-index:200;flex-shrink:0;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:34px;height:34px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.brand-name{font-size:13px;font-weight:700;color:#fff;line-height:1.2}
+.brand-sub{font-size:10px;color:#7aa8d0;font-weight:400}
+.topbar-right{font-size:11px;color:#7aa8d0;font-family:var(--ffm)}
+
+/* ── LAYOUT ──────────────────── */
+.app{display:flex;flex:1;min-height:0}
+
+/* ── SIDEBAR ─────────────────── */
+.sidebar{
+  width:210px;background:var(--navy);flex-shrink:0;
+  display:flex;flex-direction:column;
+  position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;
+  border-right:1px solid rgba(255,255,255,.06);
+}
+.nav-sect{padding:18px 14px 6px;font-size:9px;font-weight:700;color:#3a608a;letter-spacing:1.8px;text-transform:uppercase}
+.nav-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 14px;margin:1px 8px;border-radius:7px;
+  color:#8ab0cc;font-size:12.5px;font-weight:500;
+  cursor:pointer;border:none;background:none;width:calc(100% - 16px);text-align:left;
+  font-family:var(--ff);transition:all .14s;
+}
+.nav-btn:hover{background:rgba(255,255,255,.07);color:#c8dff0}
+.nav-btn.active{background:rgba(33,118,174,.22);color:#6ec6ff;border-left:3px solid var(--gold);padding-left:11px}
+.nav-icon{font-size:15px;width:20px;flex-shrink:0}
+.sidebar-foot{margin-top:auto;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:#2d4e6a;line-height:1.7}
+
+/* ── MAIN ────────────────────── */
+.main{flex:1;background:var(--gray-1);overflow-y:auto;min-height:calc(100vh - 56px)}
+.page{display:none;padding:24px}
+.page.active{display:block}
+
+/* ── PAGE HEADER ─────────────── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:14px;flex-wrap:wrap}
+.ph-title{font-size:20px;font-weight:700;color:var(--navy)}
+.ph-sub{font-size:12px;color:var(--gray-text);margin-top:2px}
+.ph-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* ── BUTTONS ─────────────────── */
+.btn{padding:7px 16px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;font-family:var(--ff);transition:all .14s;display:inline-flex;align-items:center;gap:6px}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy-2)}
+.btn-gold{background:var(--gold);color:var(--navy)}.btn-gold:hover{background:#b8841e}
+.btn-ghost{background:var(--white);color:var(--navy);border:1.5px solid var(--gray-3)}.btn-ghost:hover{background:var(--gray-2)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#15643a}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#9a2020}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#0a5f68}
+.btn-sm{padding:5px 11px;font-size:11px}
+
+/* ── KPI GRID ────────────────── */
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:22px}
+.kpi{background:var(--white);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);border-top:3px solid var(--gray-3);transition:transform .14s}
+.kpi:hover{transform:translateY(-2px)}
+.kpi.navy{border-color:var(--navy)}.kpi.blue{border-color:var(--blue)}.kpi.green{border-color:var(--green)}
+.kpi.red{border-color:var(--red)}.kpi.orange{border-color:var(--orange)}.kpi.gold{border-color:var(--gold)}.kpi.teal{border-color:var(--teal)}
+.kpi-lbl{font-size:9.5px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.kpi-val{font-size:30px;font-weight:700;color:var(--navy);line-height:1}
+.kpi-val.red{color:var(--red)}.kpi-val.green{color:var(--green)}.kpi-val.orange{color:var(--orange)}
+.kpi-note{font-size:10px;color:var(--gray-text);margin-top:4px}
+
+/* ── CARD / TABLE WRAP ───────── */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--gray-2);gap:10px;flex-wrap:wrap}
+.card-hdr-title{font-size:13px;font-weight:700;color:var(--navy)}
+.card-body{padding:16px}
+
+/* ── TABLES ──────────────────── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{
+  background:var(--navy);color:#fff;padding:9px 13px;
+  text-align:left;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;
+  white-space:nowrap;position:sticky;top:0;z-index:2;
+}
+tbody tr{border-bottom:1px solid var(--gray-2);transition:background .1s}
+tbody tr:hover{background:var(--blue-lt)}
+tbody td{padding:8px 13px;vertical-align:middle}
+.row-alt{background:var(--gray-1)}
+tfoot td{background:var(--navy);color:#fff;padding:9px 13px;font-weight:700;font-size:12px}
+
+/* ── REGION / GROUP ROWS ─────── */
+.tr-region td{background:var(--navy-2)!important;color:#fff!important;font-weight:700!important;font-size:11px!important;text-transform:uppercase;padding:7px 13px!important}
+.tr-super td{background:#ddeeff!important;color:var(--navy)!important;font-weight:600!important;font-size:11px!important}
+
+/* ── BADGES ──────────────────── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.b-red{background:var(--red-lt);color:var(--red)}.b-orange{background:var(--orange-lt);color:var(--orange)}
+.b-green{background:var(--green-lt);color:var(--green)}.b-blue{background:var(--blue-lt);color:var(--blue)}
+.b-navy{background:#dde6f4;color:var(--navy)}.b-gold{background:var(--gold-lt);color:var(--gold)}
+.b-grande{background:#dde6f4;color:var(--navy)}.b-mediana{background:var(--gold-lt);color:#8a6010}.b-pequeña{background:var(--green-lt);color:var(--green)}
+
+/* ── EDITABLE INPUT ──────────── */
+.ed{
+  border:1.5px solid transparent;border-radius:5px;padding:3px 6px;
+  font-family:var(--ffm);font-size:11.5px;text-align:center;width:70px;
+  background:transparent;outline:none;transition:all .14s;cursor:pointer;
+}
+.ed:hover,.ed:focus{border-color:var(--blue);background:var(--blue-lt);cursor:text}
+.ed.desp-done{color:var(--green);font-weight:600}
+
+/* ── FILTER BAR ──────────────── */
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fi{padding:6px 11px;border:1.5px solid var(--gray-3);border-radius:7px;font-size:12px;font-family:var(--ff);outline:none;color:var(--text);background:var(--white)}
+.fi:focus{border-color:var(--blue)}
+.fi-search{width:200px}
+
+/* ── PROGRESS ────────────────── */
+.prog-wrap{display:flex;align-items:center;gap:7px;min-width:100px}
+.prog-bg{flex:1;height:6px;background:var(--gray-2);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .35s}
+.pf-green{background:var(--green)}.pf-orange{background:var(--orange)}.pf-red{background:var(--red)}
+.prog-pct{font-size:10.5px;font-weight:600;min-width:32px;text-align:right;font-family:var(--ffm)}
+
+/* ── TABS ────────────────────── */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-2);margin-bottom:18px}
+.tab-btn{padding:9px 18px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--gray-text);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .14s;font-family:var(--ff)}
+.tab-btn:hover{color:var(--navy)}.tab-btn.active{color:var(--navy);border-bottom-color:var(--gold)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* ── ALERT ───────────────────── */
+.alert{padding:10px 16px;border-radius:7px;font-size:12px;font-weight:500;display:flex;gap:9px;align-items:flex-start;margin-bottom:14px}
+.a-blue{background:var(--blue-lt);color:var(--blue);border-left:4px solid var(--blue)}
+.a-red{background:var(--red-lt);color:var(--red);border-left:4px solid var(--red)}
+.a-green{background:var(--green-lt);color:var(--green);border-left:4px solid var(--green)}
+.a-gold{background:var(--gold-lt);color:var(--gold);border-left:4px solid var(--gold)}
+
+/* ── DESPACHO STATUS ─────────── */
+.ds-0{color:var(--gray-text)}.ds-p{color:var(--orange);font-weight:600}.ds-ok{color:var(--green);font-weight:600}
+
+/* ── MODAL ───────────────────── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--white);border-radius:12px;box-shadow:var(--sh-md);width:92%;max-width:560px;max-height:88vh;overflow-y:auto;animation:su .2s ease}
+@keyframes su{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-hdr{background:var(--navy);color:#fff;padding:16px 20px;border-radius:12px 12px 0 0;display:flex;justify-content:space-between;align-items:center}
+.modal-hdr-title{font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1;padding:0 4px}
+.modal-body{padding:20px}
+.modal-foot{padding:12px 20px;border-top:1px solid var(--gray-2);display:flex;gap:8px;justify-content:flex-end}
+
+/* ── FORM ────────────────────── */
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+label{font-size:10.5px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px}
+.fc{padding:8px 11px;border:1.5px solid var(--gray-3);border-radius:6px;font-size:12.5px;font-family:var(--ff);outline:none;color:var(--text)}
+.fc:focus{border-color:var(--blue)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* ── TOAST ───────────────────── */
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--navy);color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:500;box-shadow:var(--sh-md);transform:translateY(70px);transition:transform .28s;pointer-events:none;border-left:4px solid var(--gold)}
+#toast.on{transform:translateY(0)}
+
+/* ── PLAN TABLE ──────────────── */
+.plan-period{background:var(--navy);color:#fff;font-weight:700;font-size:11px;padding:8px 13px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── PRINT ───────────────────── */
+@media print{
+  .sidebar,.topbar,.ph-actions,.btn,.filters,#toast{display:none!important}
+  .main{overflow:visible}.page{display:block!important;padding:8px}
+  .card{box-shadow:none;border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<!-- PANTALLA DE CARGA -->
+<div id="loading-screen" style="position:fixed;inset:0;background:#071a36;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'IBM Plex Sans',sans-serif">
+  <div style="font-size:28px;margin-bottom:16px">📦</div>
+  <div style="color:#fff;font-size:16px;font-weight:700;margin-bottom:8px">Gestión de Insumos</div>
+  <div style="color:#7aa8d0;font-size:12px;margin-bottom:24px">Cargando datos desde Google Sheets...</div>
+  <div style="width:240px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden">
+    <div id="loading-bar" style="height:100%;background:#c8962a;border-radius:2px;width:0%;transition:width .3s"></div>
+  </div>
+  <div id="loading-msg" style="color:#4a7a9b;font-size:11px;margin-top:12px">Iniciando...</div>
+  <div id="loading-error" style="color:#f87171;font-size:11px;margin-top:8px;display:none;max-width:320px;text-align:center"></div>
+  <button id="loading-retry" onclick="iniciarCargaSheets()" style="display:none;margin-top:16px;background:#c8962a;color:#0c2340;border:none;padding:8px 20px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">🔄 Reintentar</button>
+</div>
+
+
+<!-- LOGIN OVERLAY -->
+<div class="login-overlay" id="login-overlay" style="display:none;position:fixed;inset:0;background:#071a36;align-items:center;justify-content:center;z-index:9999;font-family:var(--ff)">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🏪</div>
+      <div class="login-title">Gestión de Insumos</div>
+      <div class="login-sub">Regional Oriente · Grupo Chávez</div>
+    </div>
+    <div class="login-fg">
+      <label class="login-label">Usuario</label>
+      <input class="login-input" type="text" id="l-user" placeholder="usuario" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-fg">
+      <label class="login-label">Contraseña</label>
+      <input class="login-input" type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Ingresar</button>
+    <div class="login-err" id="l-err"></div>
+    <div class="login-footer">Solo personal autorizado · Grupo Chávez 2026</div>
+  </div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🏪</div>
+    <div>
+      <div class="brand-name">Gestión de Insumos · Regional Oriente</div>
+      <div class="brand-sub">Grupo Chávez · Farmacias Chávez</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div class="topbar-right" id="top-date"></div>
+    <span style="font-size:11px;color:#7aa8d0">👤 <span id="login-user-name"></span></span>
+    <button onclick="doLogout()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#c8def0;padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer;font-family:var(--ff)">Salir</button>
+  </div>
+</div>
+
+<div class="app">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="nav-sect">Principal</div>
+  <button class="nav-btn active" onclick="nav('inicio')"><span class="nav-icon">📊</span>Inicio</button>
+  <button class="nav-btn" onclick="nav('inventario')"><span class="nav-icon">📦</span>Inventario</button>
+  <div class="nav-sect">Distribución</div>
+  <button class="nav-btn" onclick="nav('dotacion')"><span class="nav-icon">📋</span>Dotación por Sucursal</button>
+  <button class="nav-btn" onclick="nav('despacho')"><span class="nav-icon">✅</span>Despacho</button>
+  <div class="nav-sect">Compras</div>
+  <button class="nav-btn" onclick="nav('comprar')"><span class="nav-icon">🛒</span>Plan de Compras</button>
+  <div class="nav-sect">Oficina</div>
+  <button class="nav-btn" onclick="nav('oficina')"><span class="nav-icon">🏢</span>Oficina Central</button>
+  <button class="nav-btn" onclick="nav('desp-oficina')"><span class="nav-icon">✅</span>Desp. Oficina</button>
+  <button class="nav-btn" onclick="nav('cedi')"><span class="nav-icon">🏭</span>CEDIS</button>
+  <button class="nav-btn" onclick="nav('traspasos')"><span class="nav-icon">🔄</span>Traspasos</button>
+  <button class="nav-btn" onclick="nav('pedidos-ext')"><span class="nav-icon">📝</span>Pedidos Extraordinarios</button>
+  <div class="nav-sect">Catálogo</div>
+  <button class="nav-btn" onclick="nav('catalogo')"><span class="nav-icon">📑</span>Catálogo SKU</button>
+  <div class="sidebar-foot">
+    82 sucursales · 28 insumos<br>
+    95 SKUs en catálogo<br>
+    Dotación fija mensual<br><br>
+    <em style="color:#1e3a5a">💾 Cambios guardados en tu navegador</em>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ═══════════════ INICIO ═══════════════ -->
+<div id="page-inicio" class="page active">
+  <div class="ph">
+    <div><div class="ph-title">📊 Panel de Control</div><div class="ph-sub">Resumen ejecutivo · Mes actual</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-gold btn-sm" onclick="nav('despacho')">✅ Ir a Despacho →</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨 Imprimir</button>
+    </div>
+  </div>
+  <div id="ini-kpis" class="kpis"></div>
+  <!-- Barra resumen pedidos extraordinarios -->
+  <div id="ini-pext-bar" class="alert" style="border-left:4px solid var(--green);background:var(--green-lt);margin-bottom:16px;cursor:default"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div class="card">
+      <div class="card-hdr"><span class="card-hdr-title">⚠️ Alertas de Stock</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Insumo</th><th class="center">Stock</th><th class="center">Necesario</th><th class="center">Estado</th></tr></thead><tbody id="ini-alertas"></tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-hdr"><span class="card-hdr-title">🌎 Sucursales por Regional</span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>Regional</th><th style="text-align:center">Sucursales</th></tr></thead><tbody id="ini-reg"></tbody></table></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-hdr-title">✅ Progreso de Despacho — Mes Actual</span><button class="btn btn-navy btn-sm" onclick="nav('despacho')">Ver detalle →</button></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Insumo</th><th style="text-align:center">Dotación total</th><th style="text-align:center">Distribuido</th><th style="text-align:center">Pendiente</th><th style="min-width:130px">% Cumplimiento</th></tr></thead><tbody id="ini-desp"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ═══════════════ INVENTARIO ═══════════════ -->
+<div id="page-inventario" class="page">
+  <div class="ph">
+    <div><div class="ph-title">📦 Inventario Almacén</div><div class="ph-sub">Edita el stock directamente — los cálculos se actualizan al instante</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-gold" onclick="saveState();toast('✅ Guardado')">💾 Guardar</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetStock()">↺ Restaurar originales</button>
+    </div>
+  </div>
+  <div class="alert a-blue">✏️ Haz clic en cualquier cantidad para editarla. Los cambios afectan Plan de Compras y Despacho en tiempo real.</div>
+
+  <!-- Registrar ingreso -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-hdr"><span class="card-hdr-title">➕ Registrar Ingreso a Almacén</span></div>
+    <div class="card-body">
+      <div class="fgrid">
+        <div class="fg"><label>Insumo</label><select class="fc" id="ing-ins"></select></div>
+        <div class="fg"><label>Cantidad recibida</label><input class="fc" type="number" id="ing-cant" min="0" placeholder="0"></div>
+        <div class="fg"><label>Referencia / OC</label><input class="fc" type="text" id="ing-ref" placeholder="OC-2026-XXX"></div>
+        <div class="fg"><label>Fecha</label><input class="fc" type="date" id="ing-fecha"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn btn-green" onclick="registrarIngreso()">✔ Confirmar ingreso</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ing-cant').value='';document.getElementById('ing-ref').value=''">✕ Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-title">Stock actual &mdash; <span id="inv-count-lbl">96 items</span></span>
+      <div class="filters">
+        <select class="fi" onchange="filterInv(this.value)">
+          <option value="">Todos los ítems</option>
+          <option value="dotacion">📋 Solo dotación (27)</option>
+          <option value="catalogo">📦 Solo catálogo</option>
+          <option value="0">⚠ Sin stock</option>
+          <option value="bajo">⚡ Stock bajo</option>
+          <option value="ok">✔ OK</option>
+        </select>
+        <input class="fi fi-search" placeholder="🔍 Buscar insumo…" oninput="searchTable('inv-tbody',this.value)">
+      </div>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>SKU</th><th>Descripción</th><th style="text-align:center">U.M.</th><th style="text-align:center">Stock Físico ✏️</th><th style="text-align:center">Estado</th><th style="text-align:center">Dotación Mensual</th></tr></thead>
+      <tbody id="inv-tbody"></tbody>
+    </table></div>
+  </div>
+
+  <div class="card" id="log-card" style="display:none">
+    <div class="card-hdr"><span class="card-hdr-title">📒 Registro de ingresos</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Fecha</th><th>Insumo</th><th style="text-align:center">Cantidad</th><th>Referencia</th></tr></thead>
+      <tbody id="log-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══════════════ DOTACIÓN ═══════════════ -->
+<div id="page-dotacion" class="page">
+  <div class="ph">
+    <div><div class="ph-title">📋 Dotación Mensual por Sucursal</div><div class="ph-sub">Dotación fija estándar — se repite cada mes para cada sucursal según su tamaño</div></div>
+    <div class="ph-actions">
+      <select class="fi" id="dot-fil-reg" onchange="renderDotacion()"><option value="">Todas las regionales</option><option>Beni</option><option>Santa Cruz</option><option>Tarija</option></select>
+      <select class="fi" id="dot-fil-sup" onchange="renderDotacion()"><option value="">Todas las supervisoras</option></select>
+      
+      <input class="fi fi-search" id="dot-search" placeholder="🔍 Buscar sucursal…" oninput="renderDotacion()">
+    </div>
+  </div>
+  <div class="alert a-gold">📋 Esta es la dotación <strong>fija mensual</strong>. Las cantidades corresponden a la nueva planificación oficial por sucursal (Junio 2026).</div>
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-title" id="dot-count"></span>
+      <button class="btn btn-ghost btn-sm" onclick="exportDotacion()">📥 Exportar Excel</button>
+      <button class="btn btn-navy btn-sm" onclick="imprimirDotacionSucursales()">🖨 Imprimir</button>
+    </div>
+    <div class="tbl-wrap" style="max-height:70vh;overflow-y:auto">
+      <table id="dot-table">
+        <thead id="dot-thead"></thead>
+        <tbody id="dot-tbody"></tbody>
+        <tfoot id="dot-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DESPACHO ═══════════════ -->
+<div id="page-despacho" class="page">
+  <div class="ph">
+    <div><div class="ph-title">✅ Control de Despacho</div><div class="ph-sub">Registra cuánto se envió a cada sucursal vs. la dotación estándar</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-green" onclick="completarTodo()">✔ Completar Todo</button>
+      <button class="btn btn-gold" onclick="saveState();toast('✅ Despacho guardado')">💾 Guardar</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportDespacho()">📥 Exportar CSV</button>
+      <button class="btn btn-navy btn-sm" onclick="imprimirDespacho()">🖨 Imprimir</button>
+    </div>
+  </div>
+
+  <div id="desp-kpis" class="kpis" style="grid-template-columns:repeat(4,1fr)"></div>
+
+  <div class="alert a-blue">✏️ Ingresa la cantidad distribuida a cada sucursal. Usa <strong>"Completar todo"</strong> si se envió exactamente la dotación estándar.</div>
+
+  <!-- APLICAR CANTIDAD MASIVA -->
+  <div class="card" style="padding:14px 18px;margin-bottom:14px;background:#fdf4e0;border-left:4px solid var(--gold)">
+    <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">⚡ Aplicar cantidad a todas las sucursales filtradas</div>
+    <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+      <div>
+        <div style="font-size:10px;color:var(--gray-text);margin-bottom:4px">Insumo</div>
+        <select class="fi" id="bulk-ins" style="width:280px"></select>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--gray-text);margin-bottom:4px">Cantidad a aplicar</div>
+        <input class="fi" type="number" id="bulk-cant" min="0" placeholder="0" style="width:100px">
+      </div>
+      <button class="btn btn-gold" onclick="aplicarCantidadMasiva()">⚡ Aplicar a filtradas</button>
+      <span style="font-size:11px;color:var(--gray-text);align-self:center" id="bulk-status"></span>
+    </div>
+  </div>
+
+  <!-- FILTROS DESPACHO -->
+  <div class="card" style="padding:14px 16px;margin-bottom:14px">
+    <div class="filters">
+      <select class="fi" id="d-fil-reg" onchange="renderDespacho()"><option value="">Todas las regionales</option><option>Beni</option><option>Santa Cruz</option><option>Tarija</option></select>
+      <select class="fi" id="d-fil-sup" onchange="renderDespacho()"><option value="">Todas las supervisoras</option></select>
+      
+      <select class="fi" id="d-fil-ins" onchange="renderDespacho()"><option value="">Todos los insumos</option></select>
+      <select class="fi" id="d-fil-est" onchange="renderDespacho()">
+        <option value="">Todos los estados</option>
+        <option value="pendiente">Sin despachar</option>
+        <option value="parcial">Parcial</option>
+        <option value="completo">Completo</option>
+      </select>
+      <input class="fi fi-search" id="d-search" placeholder="🔍 Sucursal…" oninput="renderDespacho()">
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-title" id="desp-count"></span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="resetDespacho()">↺ Limpiar despacho</button>
+      </div>
+    </div>
+    <div class="tbl-wrap" style="max-height:65vh;overflow-y:auto">
+      <table>
+        <thead>
+          <tr>
+            <th style="min-width:200px">Sucursal</th>
+            <th>Regional</th>
+            <th>Supervisora</th>
+            <th style="min-width:180px">Insumo</th>
+            <th style="text-align:center">Dotación</th>
+            <th style="text-align:center;min-width:150px">SKU a Enviar</th>
+            <th style="text-align:center">Distribuido ✏️</th>
+            <th style="text-align:center">Pendiente</th>
+            <th style="text-align:center">Estado</th>
+          </tr>
+        </thead>
+        <tbody id="desp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PLAN DE COMPRAS ═══════════════ -->
+<div id="page-comprar" class="page">
+  <div class="ph">
+    <div><div class="ph-title">🛒 Plan de Compras Consolidado</div><div class="ph-sub">Sucursales Oriente + CEDIS + Oficina Central · 1, 3 o 6 meses</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-ghost btn-sm" onclick="exportCompras()">📥 Exportar Excel</button>
+      <button class="btn btn-navy btn-sm" onclick="imprimirPlanConsolidado()">🖨 Imprimir Consolidado</button>
+    </div>
+  </div>
+
+  <!-- Selector período + filtros -->
+  <div class="card" style="padding:14px 18px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <span style="font-size:13px;font-weight:600;color:var(--navy)">Período:</span>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="periodo" value="1" checked onchange="PERIODO_SUC=1;renderCompras()"> 1 mes</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="periodo" value="3" onchange="PERIODO_SUC=3;renderCompras()"> 3 meses</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="periodo" value="6" onchange="PERIODO_SUC=6;renderCompras()"> 6 meses</label>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <select class="fi" id="comp-filter-sec" onchange="renderCompras()"><option value="">Todas las secciones</option><option value="sucursales">Sucursales</option><option value="cedi">CEDIS</option><option value="oficina">Oficina</option></select>
+        <select class="fi" id="comp-filter-st" onchange="filterCompras(this.value)"><option value="">Todos los estados</option><option value="CRITICO">Critico</option><option value="JUSTO">Justo</option><option value="OK">OK</option></select>
+        <input class="fi fi-search" id="comp-search" placeholder="Buscar insumo" oninput="filterComprasSearch(this.value)" style="width:180px">
+      </div>
+    </div>
+  </div>
+
+  <div id="comp-kpis" class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px"></div>
+  <div id="comp-alerts"></div>
+
+  <div class="card comp-section" data-sec="sucursales" style="margin-bottom:16px">
+    <div class="card-hdr" style="background:var(--navy)">
+      <span style="color:#fff;font-weight:700;font-size:13px">Sucursales Oriente</span>
+      <span id="comp-suc-lbl" style="color:#7aa8d0;font-size:11px"></span>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="comp-suc-thead"></thead>
+      <tbody id="comp-suc-tbody"></tbody>
+      <tfoot id="comp-suc-tfoot" style="font-weight:700;background:var(--gray)"></tfoot>
+    </table></div>
+  </div>
+
+  <div class="card comp-section" data-sec="cedi" style="margin-bottom:16px">
+    <div class="card-hdr" style="background:#065F46">
+      <span style="color:#fff;font-weight:700;font-size:13px">CEDIS</span>
+      <span id="comp-cedi-lbl" style="color:#6ee7b7;font-size:11px"></span>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="comp-cedi-thead"></thead>
+      <tbody id="comp-cedi-tbody"></tbody>
+      <tfoot id="comp-cedi-tfoot" style="font-weight:700;background:var(--gray)"></tfoot>
+    </table></div>
+  </div>
+
+  <div class="card comp-section" data-sec="oficina" style="margin-bottom:16px">
+    <div class="card-hdr" style="background:#4C1D95">
+      <span style="color:#fff;font-weight:700;font-size:13px">Oficina Central</span>
+      <span id="comp-ofic-lbl" style="color:#c4b5fd;font-size:11px"></span>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead id="comp-ofic-thead"></thead>
+      <tbody id="comp-ofic-tbody"></tbody>
+      <tfoot id="comp-ofic-tfoot" style="font-weight:700;background:var(--gray)"></tfoot>
+    </table></div>
+  </div>
+
+  <div class="card" id="comp-total-card">
+    <div class="card-hdr" style="background:#071a36">
+      <span style="color:#fff;font-weight:700;font-size:13px">TOTAL CONSOLIDADO A COMPRAR</span>
+    </div>
+    <div class="tbl-wrap"><table>
+      <thead><tr>
+        <th>Insumo</th><th style="text-align:center">Cod.</th><th style="text-align:center">U.M.</th>
+        <th style="text-align:center">Sucursales</th><th style="text-align:center">CEDIS</th>
+        <th style="text-align:center">Oficina</th><th style="text-align:center">Total Periodo</th>
+        <th style="text-align:center">Stock</th><th style="text-align:center">A COMPRAR</th>
+      </tr></thead>
+      <tbody id="comp-total-tbody"></tbody>
+      <tfoot id="comp-total-tfoot" style="font-weight:700;background:var(--navy);color:#fff"></tfoot>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══════════════ OFICINA CENTRAL ═══════════════ -->
+<div id="page-oficina" class="page">
+  <div class="ph">
+    <div><div class="ph-title">🏢 Oficina Central</div><div class="ph-sub">Dotación mensual por área · Oficina Central Grupo Chávez · Sra. de Limpieza</div></div>
+    <div class="ph-actions"><button class="btn btn-navy btn-sm" onclick="imprimirDotacionOficina()">🖨 Imprimir</button></div>
+  </div>
+  <div id="ofic-kpis" class="kpis"></div>
+  <div id="ofic-content"></div>
+</div>
+
+<!-- ═══════════════ CEDIS ═══════════════ -->
+<div id="page-cedi" class="page">
+  <div class="ph">
+    <div><div class="ph-title">🏭 CEDIS — Centro de Distribución</div><div class="ph-sub">Insumos operativos mensuales · Edita cantidades directamente</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-gold" onclick="saveCedi();saveState();toast('✅ CEDIS guardado')">💾 Guardar</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetCedi()">↺ Restaurar</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportCedi()">📥 Exportar CSV</button>
+    </div>
+  </div>
+  <div id="cedi-kpis" class="kpis" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="alert a-gold">✏️ El CEDIS tiene su propia dotación operativa independiente de las sucursales. Edita las cantidades para ajustar el pedido mensual.</div>
+
+  <!-- Planificación período -->
+  <div class="card" style="padding:14px 16px;margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <span style="font-size:13px;font-weight:600;color:var(--navy)">Vista de planificación:</span>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="cedi-per" value="1" checked onchange="PERIODO_CEDI=1;renderCedi()"> Mensual</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="cedi-per" value="3" onchange="PERIODO_CEDI=3;renderCedi()"> Trimestral</label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="radio" name="cedi-per" value="6" onchange="PERIODO_CEDI=6;renderCedi()"> Semestral</label>
+      <div style="margin-left:auto">
+        <input class="fi fi-search" placeholder="🔍 Buscar insumo…" oninput="searchTable('cedi-tbody',this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-title">Dotación CEDIS</span>
+      <span id="cedi-total-lbl" style="font-size:11px;color:var(--gray-text)"></span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead id="cedi-thead"></thead>
+        <tbody id="cedi-tbody"></tbody>
+        <tfoot id="cedi-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- Despacho CEDIS -->
+  <div class="card" style="margin-top:18px">
+    <div class="card-hdr">
+      <span class="card-hdr-title">✅ Control de Despacho CEDIS — Mes Actual</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-green btn-sm" onclick="completarCedi()">✔ Marcar todo despachado</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetCediDesp()">↺ Limpiar</button>
+      </div>
+    </div>
+    <div class="alert a-blue" style="margin:12px 16px 0">✏️ Registra cuánto se entregó al CEDIS vs. su dotación mensual.</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Insumo</th><th style="text-align:center">U.M.</th><th style="text-align:center">Cod.</th>
+          <th style="text-align:center">Dotación Mes</th>
+          <th style="text-align:center">Distribuido ✏️</th>
+          <th style="text-align:center">Pendiente</th>
+          <th style="text-align:center">Estado</th>
+        </tr></thead>
+        <tbody id="cedi-desp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ TRASPASOS ═══════════ -->
+<div id="page-traspasos" class="page">
+  <div class="ph">
+    <div><div class="ph-title">🔄 Generador de Traspasos</div><div class="ph-sub">Se genera automáticamente desde el despacho confirmado · Carga masiva en sistema de inventario</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-gold" id="btn-gen-tras" onclick="generarTraspasos()">⚡ Generar Traspasos</button>
+      <button class="btn btn-green" id="btn-dl-tras" onclick="descargarTraspasos()" style="display:none">📥 Descargar Excel (CSV)</button>
+    </div>
+  </div>
+
+  <div class="alert a-gold">⚠️ El traspaso solo incluye las sucursales con despacho <strong>confirmado (Completo)</strong>. Asegúrate de guardar el despacho antes de generar.</div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-hdr"><span class="card-hdr-title">Parámetros del Traspaso</span></div>
+    <div class="card-body" style="display:flex;gap:24px;align-items:flex-end;flex-wrap:wrap">
+      <div class="fg" style="margin:0">
+        <label>Almacén Origen</label>
+        <input class="fc" value="5489" readonly style="background:var(--gray-1);width:120px;font-family:var(--ffm)">
+        <div style="font-size:10px;color:var(--gray-text);margin-top:3px">ALMACEN DE INSUMOS LIMPIEZA</div>
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Prioridad</label>
+        <input class="fc" id="tras-prioridad" value="100" style="width:100px;font-family:var(--ffm)">
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Filtrar por Regional</label>
+        <select class="fi" id="tras-reg"><option value="">Todas</option><option>Beni</option><option>Santa Cruz</option><option>Tarija</option></select>
+      </div>
+      <div class="fg" style="margin:0">
+        <label>Incluir despacho</label>
+        <select class="fi" id="tras-modo">
+          <option value="completo">Solo Completos</option>
+          <option value="parcial">Completos + Parciales</option>
+          <option value="todos">Todos con cantidad > 0</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resumen antes de generar -->
+  <div id="tras-resumen" style="display:none">
+    <div id="tras-kpis" class="kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px"></div>
+    <div class="card">
+      <div class="card-hdr">
+        <span class="card-hdr-title" id="tras-count-lbl"></span>
+        <span style="font-size:11px;color:var(--gray-text)">ORIGEN: 5489 | PRIORIDAD: 100</span>
+      </div>
+      <div class="tbl-wrap" style="max-height:60vh;overflow-y:auto">
+        <table>
+          <thead><tr>
+            <th>ORIGEN</th><th>DESTINO</th><th>Sucursal</th><th>Regional</th>
+            <th>SKU</th><th>Insumo</th><th>CANTIDAD</th><th>PRIORIDAD</th>
+          </tr></thead>
+          <tbody id="tras-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CATÁLOGO SKU ═══════════ -->
+<div id="page-catalogo" class="page">
+  <div class="ph">
+    <div><div class="ph-title">📑 Catálogo de Insumos — SKU y Stock</div><div class="ph-sub">Todos los productos del inventario almacén · 95 ítems con SKU único</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-ghost btn-sm" onclick="exportCatalogo()">📥 Exportar CSV</button>
+    </div>
+  </div>
+  <div class="alert a-blue">ℹ️ Los productos con el mismo nombre pero diferente SKU son insumos del mismo tipo de <strong>distintos proveedores</strong>. Todos están listados individualmente.</div>
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-title">95 ítems en inventario</span>
+      <input class="fi fi-search" placeholder="🔍 Buscar SKU o nombre…" oninput="searchTable('cat-tbody',this.value)">
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>SKU (COD-INT.)</th><th>Descripción del Producto</th><th style="text-align:center">U.M.</th><th style="text-align:center">Stock Actual</th></tr></thead>
+        <tbody id="cat-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ DESPACHO OFICINA ═══════════ -->
+<div id="page-desp-oficina" class="page">
+  <div class="ph">
+    <div><div class="ph-title">✅ Despacho — Oficina Central</div><div class="ph-sub">Registro de materiales entregados por área</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-green" onclick="completarTodoOficina()">✔ Completar Todo</button>
+      <button class="btn btn-gold" onclick="saveState();toast('Guardado')">💾 Guardar</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportDespOficina()">📥 Exportar</button>
+    </div>
+  </div>
+  <div class="alert a-blue">✏️ Registra cuántas unidades se entregaron a cada área vs. la dotación mensual.</div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-hdr-title" id="desp-ofic-count"></span></div>
+    <div class="tbl-wrap" style="max-height:65vh;overflow-y:auto">
+      <table><thead><tr>
+        <th>Área</th><th style="text-align:center">Cód.</th><th>Material</th><th style="text-align:center">U.M.</th>
+        <th style="text-align:center">Dotación</th><th style="text-align:center">Distribuido ✏️</th>
+        <th style="text-align:center">Pendiente</th><th style="text-align:center">Estado</th>
+      </tr></thead>
+      <tbody id="desp-ofic-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ PEDIDOS EXTRAORDINARIOS ═══════════ -->
+<div id="page-pedidos-ext" class="page">
+  <div class="ph">
+    <div>
+      <div class="ph-title">📝 Pedidos Extraordinarios</div>
+      <div class="ph-sub">Solicitudes fuera de planificación · Datos desde Google Sheets · Solo aprobadas afectan el plan de compras</div>
+    </div>
+    <div class="ph-actions">
+      <button class="btn btn-teal btn-sm" onclick="cargarDesdeSheets()" id="btn-sheets-load">🔄 Actualizar</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportPedidosExt()">📥 Exportar CSV</button>
+      <button class="btn btn-navy btn-sm" onclick="imprimirPedidosExt()">🖨 Imprimir</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpis" id="pext-kpis" style="grid-template-columns:repeat(4,1fr);margin-bottom:14px"></div>
+  <!-- Estado carga Sheets -->
+  <div id="pext-sheets-status" style="display:none;margin-bottom:14px"></div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="pext-tabs">
+    <button class="tab-btn active" onclick="switchPextTab('pendiente',this)">⏳ Pendientes <span id="pext-tab-cnt-pendiente" class="badge b-orange" style="margin-left:4px">0</span></button>
+    <button class="tab-btn" onclick="switchPextTab('aprobado',this)">✅ Aprobadas <span id="pext-tab-cnt-aprobado" class="badge b-green" style="margin-left:4px">0</span></button>
+    <button class="tab-btn" onclick="switchPextTab('rechazado',this)">❌ Rechazadas <span id="pext-tab-cnt-rechazado" class="badge b-red" style="margin-left:4px">0</span></button>
+  </div>
+
+  <!-- Mini KPIs por tab -->
+  <div id="pext-mini-kpis" class="kpis" style="grid-template-columns:repeat(2,1fr);margin-bottom:18px;max-width:600px"></div>
+
+  <!-- Tabla de solicitudes -->
+  <div class="card" style="margin-bottom:18px">
+    <div class="card-hdr">
+      <span class="card-hdr-title" id="pext-table-title">Solicitudes Pendientes de Aprobación</span>
+      <input class="fi fi-search" id="pext-search" placeholder="🔍 Buscar..." oninput="filterPextTable(this.value)" style="width:180px">
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>FECHA</th><th>SOLICITANTE</th><th>SUCURSAL</th>
+          <th style="text-align:center">SKU</th><th>DESCRIPCIÓN</th>
+          <th style="text-align:center">CANT.</th><th>MOTIVO</th>
+          <th style="text-align:center">ESTADO</th>
+        </tr></thead>
+        <tbody id="pext-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Formulario nueva solicitud -->
+  <div class="card">
+    <div class="card-hdr"><span class="card-hdr-title">➕ Nueva Solicitud Extraordinaria</span></div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="fg" style="margin:0"><label>Fecha</label>
+          <input class="fc" type="date" id="pext-fecha">
+        </div>
+        <div class="fg" style="margin:0"><label>Solicitante</label>
+          <input class="fc" type="text" id="pext-solicit" placeholder="Nombre / área">
+        </div>
+        <div class="fg" style="margin:0"><label>Sucursal</label>
+          <select class="fc" id="pext-suc">
+            <option value="">-- Seleccionar --</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr 2fr;gap:12px;margin-bottom:12px">
+        <div class="fg" style="margin:0"><label>Insumo / Descripción</label>
+          <select class="fc" id="pext-ins">
+            <option value="">-- Seleccionar insumo --</option>
+          </select>
+        </div>
+        <div class="fg" style="margin:0"><label>SKU</label>
+          <input class="fc" type="text" id="pext-sku" placeholder="Auto" readonly style="background:var(--gray-1);color:var(--gray-text)">
+        </div>
+        <div class="fg" style="margin:0"><label>Cantidad</label>
+          <input class="fc" type="number" id="pext-cant" min="1" placeholder="0">
+        </div>
+        <div class="fg" style="margin:0"><label>Motivo</label>
+          <input class="fc" type="text" id="pext-motivo" placeholder="Motivo del pedido extraordinario">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-navy" onclick="agregarPedidoExt()">✔ Agregar Solicitud</button>
+        <button class="btn btn-ghost btn-sm" onclick="limpiarFormPedidoExt()">✕ Limpiar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  DATA — cargado dinámicamente desde Google Sheets
+// ============================================================
+var INSUMOS           = [];   // Lista Insumos + Plan. Sucursal
+var SUCURSALES        = [];   // Lista Sucursales
+var INVENTARIO_COMPLETO = []; // Inventario
+var CEDI_INSUMOS      = [];   // hardcoded (sin hoja propia en Sheet)
+var OFICINA           = {};   // Plan. Oficina
+var INSUMO_VARIANTS   = {};   // construido desde Inventario
+
+// CEDIS — permanece hardcoded hasta que tengas hoja propia
+CEDI_INSUMOS = [
+  {id:"c1",  cod:"22614", nombre:"PAPEL HIGIENICO 250 MTS",       um:"ROL", q:24},
+  {id:"c2",  cod:"25664", nombre:"PAPEL TOALLA MULTIUSO",          um:"ROL", q:12},
+  {id:"c3",  cod:"15564", nombre:"AMBIENTADOR GLADE LAVANDA",      um:"PZA", q:1},
+  {id:"c4",  cod:"18158", nombre:"DETERGENTE FOCA 2K",             um:"BOL", q:3},
+  {id:"c5",  cod:"33581", nombre:"BOLSA 60X80 RAYADA AZUL",        um:"PQT", q:10},
+  {id:"c6",  cod:"15563", nombre:"BOLSA PARA BASURA",              um:"PZA", q:130},
+  {id:"c7",  cod:"26336", nombre:"BOLSA PARA BASURA EXTRA GRANDE (PLOMA)", um:"PQT", q:200},
+  {id:"c8",  cod:"15525", nombre:"DIUREX GRANDE 200 YARDAS",       um:"PZA", q:200},
+  {id:"c9",  cod:"32066", nombre:"ETIQUETA TT-LOC 100X200",        um:"PZA", q:40},
+  {id:"c10", cod:"",      nombre:"PRECINTOS AMARRA CABLE 20CM",    um:"PZA", q:5000},
+  {id:"c11", cod:"",      nombre:"PLASTOFORM",                     um:"PZA", q:1300},
+  {id:"c12", cod:"",      nombre:"BOLSAS MEDIANA 24X45",           um:"PQT", q:60},
+  {id:"c13", cod:"",      nombre:"BOLSA PEQUEÑA 17X36",            um:"PQT", q:10},
+  {id:"c14", cod:"15519", nombre:"BOLIGRAFO AZUL",                  um:"PZA", q:24},
+  {id:"c15", cod:"25532", nombre:"GRAPAS PEQUEÑAS",                um:"PZA", q:20},
+  {id:"c16", cod:"15663", nombre:"PAPEL BOND CARTA (X10 PQT)",     um:"PQT", q:20},
+  {id:"c17", cod:"15545", nombre:"RESALTADOR (MULTICOLOR)",        um:"PZA", q:24},
+  {id:"c18", cod:"15547", nombre:"MARCADOR AZUL",                  um:"PZA", q:24},
+  {id:"c19", cod:"15581", nombre:"VASO DESECHABLE",                um:"PZA", q:35}
+];
+
+function defaultSku(id){var v=INSUMO_VARIANTS[id];if(!v||!v.length)return'';if(v.length===1)return v[0].sku;var b=v[0];for(var i=1;i<v.length;i++){if(v[i].stock>b.stock)b=v[i];}return b.sku;}
+function skuSel(insId,curSku,sucCod){
+  var v=INSUMO_VARIANTS[insId]||[];
+  if(v.length<=1)return '<span style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">'+(v[0]?v[0].sku:'--')+'</span>';
+  var o=v.map(function(x){return '<option value="'+x.sku+'"'+(x.sku===curSku?' selected':'')+'>'+x.sku+' (stock:'+x.stock+')</option>';}).join('');
+  return '<select class="fi sku-sel" data-suc="'+sucCod+'" data-ins="'+insId+'" style="padding:3px 5px;font-size:10.5px;font-family:var(--ffm);width:155px">'+o+'</select>';
+}
+
+// ============================================================
+//  STATE
+// ============================================================
+var S = {stock:{}, stockSku:{}, despacho:{}, ingresos:[], cediStock:{}, cediDesp:{}, pedExt:[]};
+var PERIODO_SUC  = 1;
+var PERIODO_CEDI = 1;
+
+function initState() {
+  var saved = localStorage.getItem('gci_v4');
+  if (saved) {
+    try {
+      var parsed = JSON.parse(saved);
+      S.stock    = parsed.stock    || {};
+      S.stockSku = parsed.stockSku || {};
+      S.despacho = parsed.despacho || {};
+      S.ingresos = parsed.ingresos || [];
+      S.cediStock= parsed.cediStock|| {};
+      S.cediDesp = parsed.cediDesp || {};
+      S.pedExt   = parsed.pedExt   || [];
+    } catch(e) {}
+  }
+  INSUMOS.forEach(function(i) {
+    if (S.stock[i.id] === undefined) S.stock[i.id] = i.stock0;
+  });
+}
+
+function saveState() {
+  localStorage.setItem('gci_v4', JSON.stringify(S));
+}
+
+// ============================================================
+//  COMPUTED
+// ============================================================
+function dotQ(ins, sucCod) { return (ins.dotBySuc && ins.dotBySuc[sucCod]) || 0; }
+function dotTotal(ins) {
+  if (!ins.dotBySuc) return 0;
+  return Object.values(ins.dotBySuc).reduce(function(a,b){return a+b;},0);
+}
+function getStock(id) {
+  var variants = INSUMO_VARIANTS[id]||[];
+  if (variants.length > 0) {
+    // Always sum across all variants; use S.stockSku if set, else variant base stock
+    return variants.reduce(function(a,v){
+      return a + (S.stockSku[v.sku]!==undefined ? S.stockSku[v.sku] : v.stock);
+    },0);
+  }
+  if (S.stock[id]!==undefined) return S.stock[id];
+  return (INSUMOS.find(function(i){return i.id===id;})||{stock0:0}).stock0;
+}
+function dkey(sucCod, insId) { return sucCod + '|' + insId; }
+function getDist(sucCod,insId){var v=S.despacho[dkey(sucCod,insId)];if(v===undefined||v===null)return null;if(typeof v==='object')return v;return{cantidad:v,sku:defaultSku(insId)};}
+function getDistCant(sucCod,insId){var d=getDist(sucCod,insId);return d?d.cantidad:0;}
+function getDistSku(sucCod,insId){var d=getDist(sucCod,insId);return d?d.sku:defaultSku(insId);}
+function setDist(sucCod,insId,cantidad,sku){S.despacho[dkey(sucCod,insId)]={cantidad:cantidad,sku:sku||defaultSku(insId)};saveState();}
+function onSkuChange(sucCod,insId,newSku){setDist(sucCod,insId,getDistCant(sucCod,insId),newSku);toast('SKU: '+newSku);}
+
+function insStatus(ins) {
+  var st = getStock(ins.id), need = dotTotal(ins);
+  if (st <= 0) return 'CRITICO';
+  if (st < need) return 'CRITICO';
+  if (st < need * 1.15) return 'JUSTO';
+  return 'OK';
+}
+
+function fmt(n) { return Number(n).toLocaleString('es-BO'); }
+
+// ============================================================
+//  NAV
+// ============================================================
+var RENDERS = {};
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+  var pg = document.getElementById('page-' + page);
+  if (pg) pg.classList.add('active');
+  var btn = document.querySelector('[onclick="nav(\'' + page + '\')"]');
+  if (btn) btn.classList.add('active');
+  if (RENDERS[page]) RENDERS[page]();
+}
+
+// ============================================================
+//  BADGES
+// ============================================================
+function badgeSt(st) {
+  if (st === 'CRITICO') return '<span class="badge b-red">Critico</span>';
+  if (st === 'JUSTO')   return '<span class="badge b-orange">Justo</span>';
+  return '<span class="badge b-green">OK</span>';
+}
+function badgeTam(t) {
+  return '<span class="badge b-navy">' + (t||'PDV') + '</span>';
+}
+function progBar(val, max) {
+  var pct = max > 0 ? Math.min(100, Math.round(val/max*100)) : 0;
+  var cls = pct >= 90 ? 'pf-green' : (pct >= 50 ? 'pf-orange' : 'pf-red');
+  return '<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill ' + cls + '" style="width:' + pct + '%"></div></div><span class="prog-pct">' + pct + '%</span></div>';
+}
+
+// ============================================================
+//  INICIO
+// ============================================================
+function renderInicio() {
+  var crit = INSUMOS.filter(function(i){ return insStatus(i) === 'CRITICO'; }).length;
+  var justo = INSUMOS.filter(function(i){ return insStatus(i) === 'JUSTO'; }).length;
+
+  // Pedidos extraordinarios stats
+  var pedExt = S.pedExt || [];
+  var pextPend    = pedExt.filter(function(p){ return p.estado==='pendiente'; }).length;
+  var pextAprob   = pedExt.filter(function(p){ return p.estado==='aprobado'; }).length;
+  var pextRechaz  = pedExt.filter(function(p){ return p.estado==='rechazado'; }).length;
+
+  document.getElementById('ini-kpis').innerHTML =
+    kpi('navy',   'Sucursales Oriente', SUCURSALES.length, 'SCZ / Beni / Tarija') +
+    kpi('blue',   'Insumos', INSUMOS.length, 'Dotacion fija mensual') +
+    kpi('red',    'Stock Critico', crit, 'Sin stock suficiente') +
+    kpi('orange', 'Stock Justo', justo, 'Requiere atencion') +
+    kpi('teal',   'Pedidos Ext. Pendientes', pextPend, 'Aprobados: ' + pextAprob);
+
+  // Barra resumen solicitudes extraordinarias
+  var barColor = pextPend > 0 ? 'var(--orange-lt)' : 'var(--green-lt)';
+  var barBorder = pextPend > 0 ? 'var(--orange)' : 'var(--green)';
+  document.getElementById('ini-pext-bar').innerHTML =
+    '<span style="font-weight:700;color:var(--navy)">📋 Solicitudes Extraordinarias</span>' +
+    ' &nbsp;—&nbsp; ' +
+    '<span style="color:var(--orange);font-weight:600">⏳ Pendientes: ' + pextPend + '</span>' +
+    ' &nbsp;|&nbsp; ' +
+    '<span style="color:var(--green);font-weight:600">✅ Aprobadas: ' + pextAprob + '</span>' +
+    ' &nbsp;|&nbsp; ' +
+    '<span style="color:var(--red);font-weight:600">❌ Rechazadas: ' + pextRechaz + '</span>' +
+    ' &nbsp;<span style="color:var(--gray-text);font-size:11px;cursor:pointer" onclick="nav(\'pedidos-ext\')">(clic para ver detalle)</span>';
+  document.getElementById('ini-pext-bar').style.background = barColor;
+  document.getElementById('ini-pext-bar').style.borderLeftColor = barBorder;
+
+  var alertHtml = '';
+  INSUMOS.forEach(function(ins) {
+    var st = insStatus(ins);
+    if (st !== 'OK') {
+      alertHtml += '<tr><td style="font-size:11px">' + ins.nombre + '</td>' +
+        '<td style="text-align:center;font-family:var(--ffm)">' + fmt(getStock(ins.id)) + '</td>' +
+        '<td style="text-align:center;font-family:var(--ffm)">' + fmt(dotTotal(ins)) + '</td>' +
+        '<td style="text-align:center">' + badgeSt(st) + '</td></tr>';
+    }
+  });
+  document.getElementById('ini-alertas').innerHTML = alertHtml ||
+    '<tr><td colspan="4" style="text-align:center;color:var(--green);padding:20px">Stock OK en todos los insumos</td></tr>';
+
+  var regs = [];
+  SUCURSALES.forEach(function(s){ if(regs.indexOf(s.reg)<0) regs.push(s.reg); });
+  regs.sort();
+  var regHtml = '';
+  regs.forEach(function(r) {
+    var ss = SUCURSALES.filter(function(s){return s.reg===r;});
+    regHtml += '<tr><td><strong>' + r + '</strong></td><td style="text-align:center"><strong>' + ss.length + '</strong></td></tr>';
+  });
+  document.getElementById('ini-reg').innerHTML = regHtml;
+
+  var despHtml = '';
+  INSUMOS.forEach(function(ins) {
+    var dotTot = dotTotal(ins), distTot = 0;
+    SUCURSALES.forEach(function(s) {
+      distTot+=getDistCant(s.cod,ins.id);
+    });
+    var pend = Math.max(0, dotTot - distTot);
+    despHtml += '<tr>' +
+      '<td style="font-size:11px">' + ins.nombre + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">' + fmt(dotTot) + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">' + fmt(distTot) + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);color:' + (pend>0?'var(--red)':'var(--green)') + '">' + (pend>0?fmt(pend):'OK') + '</td>' +
+      '<td style="min-width:120px">' + progBar(distTot, dotTot) + '</td></tr>';
+  });
+  document.getElementById('ini-desp').innerHTML = despHtml;
+}
+
+function kpi(color, label, value, note) {
+  return '<div class="kpi ' + color + '"><div class="kpi-lbl">' + label +
+    '</div><div class="kpi-val">' + value + '</div><div class="kpi-note">' + note + '</div></div>';
+}
+
+// ============================================================
+//  INVENTARIO
+// ============================================================
+function renderInventario() {
+  var sel = document.getElementById('ing-ins');
+  var opts = '';
+  // ALL 96 items in ingreso selector
+  INVENTARIO_COMPLETO.forEach(function(item){
+    var dot = SKU_DOTACION[item.sku];
+    var insId = dot ? dot.insId : 0;
+    var tag = dot ? ' [Dotacion]' : '';
+    opts += '<option value="sku:'+item.sku+':'+insId+'">'+item.sku+' - '+item.nombre+tag+'</option>';
+  });
+  sel.innerHTML = opts;
+  document.getElementById('ing-fecha').value = new Date().toISOString().split('T')[0];
+  buildInvTable('','');
+  renderLog();
+}
+
+// Build SKU -> dotacion info lookup once
+var SKU_DOTACION = {};  // sku -> {insId, need, isMultiSku}
+(function() {
+  Object.keys(INSUMO_VARIANTS).forEach(function(id) {
+    var ins = INSUMOS.find(function(i){ return i.id === parseInt(id); });
+    if (!ins) return;
+    var variants = INSUMO_VARIANTS[id];
+    var isMulti = variants.length > 1;
+    variants.forEach(function(v) {
+      SKU_DOTACION[v.sku] = {insId: parseInt(id), need: dotTotal(ins), isMulti: isMulti, totalSkus: variants.length};
+    });
+  });
+})();
+
+function buildInvTable(search, stFilter) {
+  var rows = '';
+  var rowIdx = 0;
+  var lastGroupSku = null;
+
+  INVENTARIO_COMPLETO.forEach(function(item) {
+    var stV = S.stockSku[item.sku] !== undefined ? S.stockSku[item.sku] : item.stock;
+    var dot = SKU_DOTACION[item.sku];  // null if not a dotacion item
+    var need = dot ? dot.need : 0;
+
+    // Search filter
+    if (search) {
+      var sv = search.toLowerCase();
+      if (item.nombre.toLowerCase().indexOf(sv) < 0 && item.sku.indexOf(sv) < 0) return;
+    }
+
+    // Stock status
+    var stKey, stLabel;
+    if (dot) {
+      // Dotacion item: evaluate against monthly need
+      stKey = stV <= 0 ? '0' : stV < need ? '0' : stV < need*1.15 ? 'bajo' : 'ok';
+      stLabel = stV === 0 ? '<span class="badge b-red">Sin stock</span>' :
+        stV < need ? '<span class="badge b-red">Insuficiente</span>' :
+        stV < need*1.15 ? '<span class="badge b-orange">Justo</span>' :
+        '<span class="badge b-green">Suficiente</span>';
+    } else {
+      // Catalog-only item: simple low/ok check
+      stKey = stV <= 0 ? '0' : stV <= 5 ? 'bajo' : 'ok';
+      stLabel = stV === 0 ? '<span class="badge b-red">Sin stock</span>' :
+        stV <= 5 ? '<span class="badge b-orange">Stock bajo</span>' :
+        '<span class="badge b-green">Disponible</span>';
+    }
+
+    // Apply filter
+    if (stFilter) {
+      if (stFilter === '0' && stKey !== '0') return;
+      if (stFilter === 'bajo' && stKey !== 'bajo' && stKey !== '0') return;
+      if (stFilter === 'ok' && stKey !== 'ok') return;
+      if (stFilter === 'dotacion' && !dot) return;
+      if (stFilter === 'catalogo' && dot) return;
+    }
+
+    // Group header for multi-SKU dotacion items
+    if (dot && dot.isMulti) {
+      var ins = INSUMOS.find(function(i){ return i.id === dot.insId; });
+      var groupKey = 'ins-' + dot.insId;
+      if (lastGroupSku !== groupKey) {
+        lastGroupSku = groupKey;
+        // Sum all variants for this group
+        var groupTotal = (INSUMO_VARIANTS[dot.insId]||[]).reduce(function(a,v){
+          return a + (S.stockSku[v.sku]!==undefined ? S.stockSku[v.sku] : v.stock);
+        }, 0);
+        rows += '<tr style="background:#ddeeff">' +
+          '<td colspan="6" style="padding:7px 13px;font-size:11.5px;font-weight:700;color:var(--navy)">' +
+          (ins ? ins.nombre : item.nombre) +
+          '&nbsp;<span class="badge b-navy" style="font-size:9px">' + dot.totalSkus + ' SKUs</span>' +
+          '&nbsp;<span style="color:var(--gray-text);font-size:10.5px;font-weight:400">Stock combinado: ' + groupTotal + ' ' + item.um + '</span>' +
+          '</td></tr>';
+      }
+    } else {
+      lastGroupSku = null;
+    }
+
+    // Dotacion badge
+    var dotBadge = dot ? '&nbsp;<span class="badge b-gold" style="font-size:8.5px">Dotacion</span>' : '';
+    var isIndented = dot && dot.isMulti;
+    var bg = rowIdx%2===0 ? '' : 'background:var(--gray-1)';
+    if (isIndented) bg = 'background:#f8fbff';
+
+    var insId = dot ? dot.insId : 0;
+
+    rows += '<tr style="' + bg + '">' +
+      '<td style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">' + item.sku + '</td>' +
+      '<td style="font-size:11.5px' + (isIndented?';padding-left:22px;color:var(--gray-text)':'') + '">' +
+        item.nombre + dotBadge +
+      '</td>' +
+      '<td style="text-align:center">' + item.um + '</td>' +
+      '<td style="text-align:center">' +
+        '<input class="ed" type="number" min="0" value="' + stV + '" ' +
+        'data-sku="' + item.sku + '" data-ins="' + insId + '" onchange="updateStockSku(this)">' +
+      '</td>' +
+      '<td style="text-align:center">' + stLabel + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-size:10.5px;color:var(--gray-text)">' +
+        (dot ? 'Necesario: '+need : '') +
+      '</td>' +
+    '</tr>';
+    rowIdx++;
+  });
+
+  document.getElementById('inv-tbody').innerHTML = rows ||
+    '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--gray-text)">Sin resultados</td></tr>';
+}
+function filterInv(val) { buildInvTable(document.getElementById('inv-search')?document.getElementById('inv-search').value:'', val); }
+function updateStock(id, val) { S.stock[id] = Math.max(0, parseInt(val)||0); saveState(); toast('Stock actualizado'); }
+function updateStockSku(input) {
+  var sku = input.getAttribute('data-sku');
+  var insId = parseInt(input.getAttribute('data-ins'));
+  var val = Math.max(0, parseInt(input.value)||0);
+  S.stockSku[sku] = val;
+  if (insId > 0) {
+    var variants = INSUMO_VARIANTS[insId]||[];
+    S.stock[insId] = variants.reduce(function(a,v){ return a+(S.stockSku[v.sku]!==undefined?S.stockSku[v.sku]:v.stock); },0);
+  }
+  saveState();
+  refreshDependentViews();
+  toast('Stock ' + sku + ': ' + val);
+}
+function resetStock() {
+  if (!confirm('Restaurar todos los items a valores originales del inventario?')) return;
+  S.stockSku = {};
+  // Reset all 96 items from INVENTARIO_COMPLETO
+  INVENTARIO_COMPLETO.forEach(function(item){ S.stockSku[item.sku] = item.stock; });
+  // Recalculate dotacion aggregates
+  INSUMOS.forEach(function(ins){
+    var variants = INSUMO_VARIANTS[ins.id]||[];
+    S.stock[ins.id] = variants.reduce(function(a,v){ return a+(S.stockSku[v.sku]!==undefined?S.stockSku[v.sku]:v.stock); },0);
+  });
+  saveState(); buildInvTable('',''); toast('Stock restaurado: ' + INVENTARIO_COMPLETO.length + ' items');
+}
+
+function registrarIngreso() {
+  var selVal = document.getElementById('ing-ins').value;
+  var cant = parseInt(document.getElementById('ing-cant').value)||0;
+  var ref = document.getElementById('ing-ref').value;
+  var fecha = document.getElementById('ing-fecha').value;
+  if (!cant || cant <= 0) { toast('Ingresa una cantidad valida'); return; }
+
+  var sku, insId, logNombre, insUm;
+  var parts = selVal.split(':');  // format: sku:SKU:insId
+  sku = parts[1]; insId = parseInt(parts[2]);
+  var ins = INSUMOS.find(function(i){return i.id===insId;})||{};
+  var vArr = (INSUMO_VARIANTS[insId]||[]).filter(function(v){return v.sku===sku;});
+  logNombre = vArr.length ? vArr[0].label : sku;
+  insUm = ins.um||'';
+
+  S.stockSku[sku] = (S.stockSku[sku]!==undefined?S.stockSku[sku]:0) + cant;
+  if (insId > 0) {
+    // Dotacion item: recalculate aggregate
+    var variants = INSUMO_VARIANTS[insId]||[];
+    S.stock[insId] = variants.reduce(function(a,v){ return a+(S.stockSku[v.sku]!==undefined?S.stockSku[v.sku]:v.stock); },0);
+  }
+  S.ingresos.unshift({fecha:fecha, nombre:logNombre+' [SKU:'+sku+']', cantidad:cant, ref:ref});
+  saveState(); buildInvTable('',''); renderLog();
+  document.getElementById('ing-cant').value = '';
+  document.getElementById('ing-ref').value = '';
+  toast('+' + cant + ' ' + insUm + ' de SKU ' + sku);
+}
+
+function renderLog() {
+  var c = document.getElementById('log-card');
+  if (!S.ingresos.length) { c.style.display='none'; return; }
+  c.style.display = 'block';
+  document.getElementById('log-tbody').innerHTML = S.ingresos.map(function(l) {
+    return '<tr><td style="font-family:var(--ffm);font-size:11px">' + l.fecha + '</td><td>' + l.nombre +
+      '</td><td style="text-align:center;font-family:var(--ffm)">' + fmt(l.cantidad) + '</td><td>' + (l.ref||'--') + '</td></tr>';
+  }).join('');
+}
+
+// ============================================================
+//  DOTACION
+// ============================================================
+function initDotFiltros() {
+  var sups = [];
+  SUCURSALES.forEach(function(s){ if(sups.indexOf(s.sup)<0) sups.push(s.sup); });
+  sups.sort();
+  document.getElementById('dot-fil-sup').innerHTML = '<option value="">Todas las supervisoras</option>' +
+    sups.map(function(s){ return '<option>' + s + '</option>'; }).join('');
+}
+
+function renderDotacion() {
+  var reg = document.getElementById('dot-fil-reg').value;
+  var sup = document.getElementById('dot-fil-sup').value;
+  var search = document.getElementById('dot-search').value.toLowerCase();
+  var filtered = SUCURSALES.filter(function(s) {
+    return (!reg||s.reg===reg) && (!sup||s.sup===sup) &&
+      (!search||s.suc.toLowerCase().indexOf(search)>=0||s.cod.indexOf(search)>=0);
+  });
+  document.getElementById('dot-count').textContent = filtered.length + ' sucursales';
+
+  var shortNames = INSUMOS.map(function(i){ return i.nombre.split(' ').slice(0,2).join(' '); });
+  document.getElementById('dot-thead').innerHTML = '<tr><th>Cod.</th><th style="min-width:180px">Sucursal</th><th>Regional</th><th>Supervisora</th>' +
+    INSUMOS.map(function(ins,i){ return '<th style="text-align:center;font-size:9px;white-space:normal;max-width:65px" title="'+ins.nombre+'">'+shortNames[i]+'</th>'; }).join('') +
+    '<th style="text-align:center">Total</th></tr>';
+
+  var html = '';
+  var prevReg = null;
+  filtered.forEach(function(s, ri) {
+    if (s.reg !== prevReg) {
+      html += '<tr class="tr-region"><td colspan="' + (5+INSUMOS.length+1) + '">' + s.reg.toUpperCase() + ' -- ' + filtered.filter(function(x){return x.reg===s.reg;}).length + ' sucursales</td></tr>';
+      prevReg = s.reg;
+    }
+    var total = INSUMOS.reduce(function(acc,ins){ return acc + dotQ(ins, s.cod); }, 0);
+    html += '<tr class="' + (ri%2?'row-alt':'') + '">' +
+      '<td style="font-family:var(--ffm);font-size:10px">' + s.cod + '</td>' +
+      '<td style="font-size:11.5px;font-weight:500">' + s.suc + '</td>' +
+      '<td style="font-size:11px">' + s.reg + '</td>' +
+      '<td style="text-align:center;font-size:10.5px;color:var(--gray-text)">' + s.sup + '</td>' +
+      INSUMOS.map(function(ins){ var q=dotQ(ins, s.cod); return '<td style="text-align:center;font-family:var(--ffm);font-size:11px">'+(q||'')+'</td>'; }).join('') +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700">' + total + '</td></tr>';
+  });
+  document.getElementById('dot-tbody').innerHTML = html;
+
+  var totals = INSUMOS.map(function(ins){ return filtered.reduce(function(a,s){ return a+dotQ(ins, s.cod); },0); });
+  document.getElementById('dot-tfoot').innerHTML = '<tr><td colspan="4" style="text-align:right;padding:9px 13px">TOTAL ' + filtered.length + ' suc.</td>' +
+    totals.map(function(t){ return '<td style="text-align:center">' + t + '</td>'; }).join('') +
+    '<td style="text-align:center">' + totals.reduce(function(a,b){return a+b;},0) + '</td></tr>';
+
+  document.getElementById('dot-tbody').innerHTML = html;
+}
+
+function exportDotacion() {
+  var reg  = (document.getElementById('dot-fil-reg')||{value:''}).value;
+  var sup  = (document.getElementById('dot-fil-sup')||{value:''}).value;
+  var srch = ((document.getElementById('dot-search')||{value:''}).value||'').toLowerCase();
+  var filtered = SUCURSALES.filter(function(s){
+    return (!reg||s.reg===reg) && (!sup||s.sup===sup) &&
+      (!srch||s.suc.toLowerCase().indexOf(srch)>=0);
+  });
+
+  // Formato vertical: una fila por sucursal × insumo
+  var data = [['Cod. Sucursal','Sucursal','Regional','Supervisora','Cod. Insumo','Item','U.M.','Cantidad']];
+  filtered.forEach(function(s) {
+    INSUMOS.forEach(function(ins) {
+      var q = dotQ(ins, s.cod);
+      data.push([s.cod, s.suc, s.reg, s.sup, ins.cod, ins.nombre, ins.um, q]);
+    });
+  });
+
+  var wb = XLSX.utils.book_new();
+  var ws = XLSX.utils.aoa_to_sheet(data);
+
+  // Ancho de columnas
+  ws['!cols'] = [
+    {wch:12},{wch:32},{wch:14},{wch:26},{wch:12},{wch:38},{wch:7},{wch:10}
+  ];
+
+  // Estilo cabecera (color navy)
+  var hdrRange = XLSX.utils.decode_range('A1:H1');
+  for (var C = hdrRange.s.c; C <= hdrRange.e.c; C++) {
+    var cell = ws[XLSX.utils.encode_cell({r:0, c:C})];
+    if (cell) {
+      cell.s = {
+        font: {bold:true, color:{rgb:'FFFFFF'}},
+        fill: {fgColor:{rgb:'0C2340'}},
+        alignment: {horizontal:'center'}
+      };
+    }
+  }
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Dotacion');
+  var fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
+  XLSX.writeFile(wb, 'Dotacion_Sucursales_' + fecha + '.xlsx');
+}
+
+// ============================================================
+//  DESPACHO
+// ============================================================
+function initDespFiltros() {
+  var sups = [];
+  SUCURSALES.forEach(function(s){ if(sups.indexOf(s.sup)<0) sups.push(s.sup); });
+  sups.sort();
+  var selSup = document.getElementById('d-fil-sup');
+  selSup.innerHTML = '<option value="">Todas las supervisoras</option>' +
+    sups.map(function(s){ return '<option>' + s + '</option>'; }).join('');
+  var selIns = document.getElementById('d-fil-ins');
+  selIns.innerHTML = '<option value="">Todos los insumos</option>' +
+    INSUMOS.map(function(i){ return '<option value="' + i.id + '">' + i.nombre + '</option>'; }).join('');
+}
+
+function renderDespacho() {
+  var reg  = document.getElementById('d-fil-reg').value;
+  var sup  = document.getElementById('d-fil-sup').value;
+  var insF = document.getElementById('d-fil-ins').value;
+  var estF = document.getElementById('d-fil-est').value;
+  var srch = document.getElementById('d-search').value.toLowerCase();
+
+  var sucFil = SUCURSALES.filter(function(s) {
+    return (!reg||s.reg===reg) && (!sup||s.sup===sup) &&
+      (!srch||s.suc.toLowerCase().indexOf(srch)>=0||s.cod.indexOf(srch)>=0);
+  });
+  var insFil = insF ? INSUMOS.filter(function(i){ return i.id===parseInt(insF); }) : INSUMOS;
+
+  var totDot=0, totDist=0, sucOk=0;
+  sucFil.forEach(function(s) {
+    var done = true;
+    insFil.forEach(function(ins) {
+      var dot = dotQ(ins, s.cod);
+      totDot += dot;
+      var dist=getDistCant(s.cod,ins.id);
+      totDist += dist;
+      if (dist < dot) done = false;
+    });
+    if (done) sucOk++;
+  });
+  var pct = totDot>0 ? Math.round(totDist/totDot*100) : 0;
+
+  document.getElementById('desp-kpis').innerHTML =
+    kpi('green','Suc. Completas', sucOk+'/'+sucFil.length, '') +
+    kpi('blue','Distribuido', fmt(totDist), 'unidades') +
+    kpi('navy','Dotacion Total', fmt(totDot), 'unidades') +
+    kpi(pct>=90?'green':'orange','% Cumplimiento', pct+'%', 'del mes');
+
+  var html = '';
+  var prevReg=null, prevSup=null;
+  var totalRows = 0;
+  sucFil.forEach(function(s) {
+    insFil.forEach(function(ins) {
+      var dot=dotQ(ins, s.cod),dist=getDistCant(s.cod,ins.id),pend=Math.max(0,dot-dist);
+      var stato = dist===0&&dot>0 ? 'pendiente' : dist>=dot ? 'completo' : 'parcial';
+      if (estF && stato !== estF) return;
+      totalRows++;
+
+      if (s.reg !== prevReg) {
+        html += '<tr class="tr-region"><td colspan="10">' + s.reg.toUpperCase() + '</td></tr>';
+        prevReg=s.reg; prevSup=null;
+      }
+      if (s.sup !== prevSup) {
+        html += '<tr class="tr-super"><td colspan="10">Supervisora: ' + s.sup + '</td></tr>';
+        prevSup=s.sup;
+      }
+      var stBadge = stato==='completo' ? '<span class="badge b-green">Completo</span>' :
+        stato==='parcial' ? '<span class="badge b-orange">Parcial</span>' :
+        '<span class="badge b-red">Pendiente</span>';
+
+      html += '<tr>' +
+        '<td style="font-size:11px;font-weight:500">' + s.suc + '<br><span style="font-family:var(--ffm);font-size:9px;color:var(--gray-text)">' + s.cod + '</span></td>' +
+        '<td style="font-size:11px">' + s.reg + '</td>' +
+        '<td style="text-align:center">' + '<span class="badge b-navy">' + s.reg + '</span>' + '</td>' +
+        '<td style="font-size:10.5px;color:var(--gray-text)">' + s.sup + '</td>' +
+        '<td style="font-size:11px">' + ins.nombre + '</td>' +
+        '<td style="text-align:center;font-family:var(--ffm);font-weight:600">' + dot + '</td>' +
+        '<td style="text-align:center">' + skuSel(ins.id,getDistSku(s.cod,ins.id),s.cod) + '</td>' +
+        '<td style="text-align:center"><input class="ed' + (stato==='completo'?' desp-done':'') + '" type="number" min="0" value="' + dist + '" onchange="onDespChange(\'' + s.cod + '\',' + ins.id + ',this,' + dot + ')"></td>' +
+        '<td style="text-align:center;font-family:var(--ffm);' + (pend>0?'color:var(--red);font-weight:600':'') + '">' + (pend>0?pend:'--') + '</td>' +
+        '<td style="text-align:center">' + stBadge + '</td></tr>';
+    });
+  });
+  if (!html) html = '<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--gray-text)">No hay registros con esos filtros.</td></tr>';
+  document.getElementById('desp-tbody').innerHTML = html;
+  document.getElementById('desp-count').textContent = sucFil.length + ' sucursales - ' + insFil.length + ' insumos - ' + totalRows + ' filas';
+  initBulkInsumoSelect();
+}
+
+function onDespChange(sucCod,insId,input,dot){
+  var val=Math.max(0,parseInt(input.value)||0);
+  input.value=val;
+  setDist(sucCod,insId,val,getDistSku(sucCod,insId));
+  var tr=input.closest('tr'),pend=Math.max(0,dot-val);
+  tr.children[8].textContent=pend>0?pend:'--';
+  tr.children[8].style.color=pend>0?'var(--red)':'';
+  var stato=val===0&&dot>0?'pendiente':val>=dot?'completo':'parcial';
+  input.className='ed'+(stato==='completo'?' desp-done':'');
+  tr.children[9].innerHTML=stato==='completo'?'<span class="badge b-green">Completo</span>':
+    stato==='parcial'?'<span class="badge b-orange">Parcial</span>':
+    '<span class="badge b-red">Pendiente</span>';
+  toast('Guardado');
+}
+
+function completarTodo() {
+  if (!confirm('Marcar todas las sucursales filtradas como despachadas con dotacion estandar?')) return;
+  var reg  = document.getElementById('d-fil-reg').value;
+  var sup  = document.getElementById('d-fil-sup').value;
+  var insF = document.getElementById('d-fil-ins').value;
+  var sucFil = SUCURSALES.filter(function(s){ return (!reg||s.reg===reg)&&(!sup||s.sup===sup); });
+  var insFil = insF ? INSUMOS.filter(function(i){ return i.id===parseInt(insF); }) : INSUMOS;
+  sucFil.forEach(function(s){ insFil.forEach(function(ins){ setDist(s.cod,ins.id,dotQ(ins, s.cod),defaultSku(ins.id)); }); });
+  renderDespacho(); toast('Despacho completado');
+}
+
+function resetDespacho() {
+  if (!confirm('Limpiar todos los registros de despacho?')) return;
+  S.despacho = {}; saveState(); renderDespacho(); toast('Despacho limpiado');
+}
+
+function exportDespacho() {
+  var csv = 'Cod,Sucursal,Regional,Supervisora,Insumo,SKU,Dotacion,Distribuido,Pendiente,Estado\n';
+  SUCURSALES.forEach(function(s) {
+    INSUMOS.forEach(function(ins) {
+      var dot = dotQ(ins, s.cod);
+      var dist=getDistCant(s.cod,ins.id);
+      var pend=Math.max(0,dot-dist);
+      var stato = dist===0?'Pendiente':dist>=dot?'Completo':'Parcial';
+      var sku_e=getDistSku(s.cod,ins.id);csv+='"'+s.cod+'","'+s.suc+'","'+s.reg+'","'+s.sup+'","'+ins.nombre+'","'+sku_e+'",'+dot+','+dist+','+pend+',"'+stato+'"\n';
+    });
+  });
+  dlCSV(csv, 'despacho_oriente.csv');
+}
+
+// ============================================================
+//  COMPRAS
+// ============================================================
+
+// ── Mapa maestro de artículos para plan de compras ───────────────────────────
+// Unifica nombres de OFICINA/CEDI con SKU del inventario para evitar duplicados
+var MASTER_MAP = {
+  // nombre_normalizado -> {cod, nombre_oficial}
+  'papel bond carta':        {cod:'15663', nombre:'PAPEL BOND TAMAÑO CARTA X500'},
+  'papel bond oficio':       {cod:'15664', nombre:'PAPEL BOND TAMAÑO OFICIO X500'},
+  'boligrafo azul':          {cod:'15519', nombre:'BOLIGRAFO AZUL'},
+  'marcador negro':          {cod:'15548', nombre:'MARCADOR NEGRO'},
+  'marcador azul':           {cod:'15547', nombre:'MARCADOR AZUL'},
+  'diurex':                  {cod:'15525', nombre:'DIUREX GRANDE 200 YARDAS'},
+  'cinta adhesiva':          {cod:'15525', nombre:'DIUREX GRANDE 200 YARDAS'},
+  'cinta de papel':          {cod:'15525', nombre:'DIUREX GRANDE 200 YARDAS'},
+  'grampas':                 {cod:'15533', nombre:'GRAPAS PEQUEÑAS'},
+  'granpas':                 {cod:'15533', nombre:'GRAPAS PEQUEÑAS'},
+  'post-it':                 {cod:'15543', nombre:'PAPEL DE NOTAS POST-IT 76MM'},
+  'papel de notas':          {cod:'15543', nombre:'PAPEL DE NOTAS POST-IT 76MM'},
+  'ambientador':             {cod:'20542', nombre:'AMBIENTADOR EN AEROSOL'},
+  'bolsa basura':            {cod:'15563', nombre:'BOLSA PARA BASURA'},
+  'clips':                   {cod:'15532', nombre:'CLIPS METALICO 33MM'},
+  'nepaco':                  {cod:'26610', nombre:'FASTENER NEPACO METALICO CJ50PZ'},
+  'resaltador':              {cod:'15545', nombre:'RESALTADOR (MULTICOLOR)'},
+  'estilete':                {cod:'15550', nombre:'ESTILETE CUTTER'},
+  'papel higienico':         {cod:'22614', nombre:'PAPEL HIGIENICO ROLLO GRANDE'},
+  'vasos desechables':       {cod:'15581', nombre:'VASO DESECHABLE'},
+  'tinta tampo':             {cod:'15542', nombre:'TINTA PARA TAMPO NEGRO'},
+  'sobre kraft':             {cod:'16018', nombre:'SOBRE KRAFT 1/2 OFICIO'},
+  'sobre manila':            {cod:'16021', nombre:'SOBRE MANILA TAMAÑO CARTA'},
+};
+
+function normalizeMaterial(nombre) {
+  var n = nombre.toLowerCase().trim();
+  var keys = Object.keys(MASTER_MAP);
+  for (var i=0; i<keys.length; i++) {
+    if (n.indexOf(keys[i]) >= 0) return MASTER_MAP[keys[i]];
+  }
+  return null;
+}
+
+function renderCompras() {
+  var meses = PERIODO_SUC;
+  var secFil = document.getElementById('comp-filter-sec') ? document.getElementById('comp-filter-sec').value : '';
+
+  // ── SECCION SUCURSALES ─────────────────────────────────────────────────────
+  var thead_suc = '<tr>' +
+    '<th>Cód.</th><th>Insumo</th><th style="text-align:center">U.M.</th>' +
+    '<th style="text-align:center">Total Mes</th><th style="text-align:center">×'+meses+' Meses</th>' +
+    '<th style="text-align:center">+Ext Aprobados</th>' +
+    '<th style="text-align:center">Stock</th><th style="text-align:center">A Comprar</th><th style="text-align:center">Estado</th></tr>';
+  document.getElementById('comp-suc-thead').innerHTML = thead_suc;
+
+  var sucRows='', sucTotMes=0, sucTotPer=0, sucTotSt=0, sucTotComp=0, sucCrit=0, sucTotExt=0;
+  INSUMOS.forEach(function(ins, ri) {
+    var st = getStock(ins.id);
+    var dotMes = dotTotal(ins);
+    var dotPer = dotMes*meses;
+    var extAprob = getPedExtAprobado(ins.id);
+    var aComp = Math.max(0, dotPer + extAprob - st);
+    var status = insStatus(ins);
+    if (status==='CRITICO') sucCrit++;
+    sucTotMes+=dotMes; sucTotPer+=dotPer; sucTotSt+=st; sucTotComp+=aComp; sucTotExt+=extAprob;
+    var variants = INSUMO_VARIANTS[ins.id]||[];
+    var skuNote = variants.length>1 ?
+      '<br><small style="color:var(--gray-text);font-family:var(--ffm);font-size:10px">' +
+      variants.map(function(v){return v.sku+'('+(S.stockSku[v.sku]!==undefined?S.stockSku[v.sku]:v.stock)+')';}).join(' + ') +
+      '</small>' : '';
+    sucRows += '<tr class="'+(ri%2?'row-alt':'')+'" data-status="'+status+'" data-sec="sucursales">' +
+      '<td style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">'+ins.cod+'</td>' +
+      '<td style="font-size:11.5px">'+ins.nombre+skuNote+'</td>' +
+      '<td style="text-align:center">'+ins.um+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:600">'+fmt(dotMes)+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:var(--navy-2)">'+fmt(dotPer)+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:'+(extAprob>0?'var(--teal)':'var(--gray-text)')+'">'+(extAprob>0?'+'+fmt(extAprob):'--')+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">'+fmt(st)+skuNote+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);'+(aComp>0?'color:var(--red);font-weight:700':'color:var(--green)')+'">'+(aComp>0?fmt(aComp):'--')+'</td>' +
+      '<td style="text-align:center">'+badgeSt(status)+'</td></tr>';
+  });
+  document.getElementById('comp-suc-tbody').innerHTML = sucRows;
+  document.getElementById('comp-suc-tfoot').innerHTML = '<tr><td colspan="6" style="padding:8px 13px">TOTAL SUCURSALES</td>' +
+    '<td style="text-align:center;color:var(--teal);font-weight:700">+'+fmt(sucTotExt)+'</td>' +
+    '<td style="text-align:center">'+fmt(sucTotSt)+'</td>' +
+    '<td style="text-align:center;color:var(--red);font-weight:700">'+fmt(sucTotComp)+'</td><td></td></tr>';
+  document.getElementById('comp-suc-lbl').textContent =
+    INSUMOS.length + ' insumos · ' + (sucCrit>0 ? sucCrit+' criticos' : 'OK') + ' · A comprar: '+fmt(sucTotComp) + (sucTotExt>0?' (incl. +'+fmt(sucTotExt)+' ext)':'');
+
+  // ── SECCION CEDIS ──────────────────────────────────────────────────────────
+  var thead_cedi = '<tr>' +
+    '<th>Cód.</th><th>Insumo</th><th style="text-align:center">U.M.</th>' +
+    '<th style="text-align:center">Dot. Mensual</th><th style="text-align:center">×'+meses+' Meses</th>' +
+    '<th style="text-align:center">Stock</th><th style="text-align:center">A Comprar</th></tr>';
+  document.getElementById('comp-cedi-thead').innerHTML = thead_cedi;
+
+  var cediRows='', cediTotPer=0, cediTotSt=0, cediTotComp=0;
+  CEDI_INSUMOS.forEach(function(ci, ri) {
+    var dotMes = S.cediStock[ci.id]!==undefined ? S.cediStock[ci.id] : ci.q;
+    var dotPer = dotMes*meses;
+    var st = ci.cod ? (S.stockSku[ci.cod]!==undefined ? S.stockSku[ci.cod] : 0) : 0;
+    var aComp = Math.max(0, dotPer-st);
+    cediTotPer+=dotPer; cediTotSt+=st; cediTotComp+=aComp;
+    var stColor = aComp>0 ? 'color:var(--red);font-weight:700' : 'color:var(--green)';
+    cediRows += '<tr class="'+(ri%2?'row-alt':'')+'" data-sec="cedi">' +
+      '<td style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">'+(ci.cod||'--')+'</td>' +
+      '<td style="font-size:11.5px">'+ci.nombre+'</td>' +
+      '<td style="text-align:center">'+ci.um+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:600">'+fmt(dotMes)+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:var(--navy-2)">'+fmt(dotPer)+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">'+fmt(st)+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);'+stColor+'">'+(aComp>0?fmt(aComp):'--')+'</td></tr>';
+  });
+  document.getElementById('comp-cedi-tbody').innerHTML = cediRows;
+  document.getElementById('comp-cedi-tfoot').innerHTML = '<tr><td colspan="4" style="padding:8px 13px">TOTAL CEDIS</td>' +
+    '<td style="text-align:center">'+fmt(cediTotPer)+'</td>' +
+    '<td style="text-align:center">'+fmt(cediTotSt)+'</td>' +
+    '<td style="text-align:center;color:var(--red);font-weight:700">'+fmt(cediTotComp)+'</td></tr>';
+  document.getElementById('comp-cedi-lbl').textContent =
+    CEDI_INSUMOS.length + ' insumos · A comprar: ' + fmt(cediTotComp);
+
+  // ── SECCION OFICINA ────────────────────────────────────────────────────────
+  var thead_ofic = '<tr>' +
+    '<th>Área</th><th style="text-align:center">Cód.</th><th>Material</th><th style="text-align:center">U.M.</th>' +
+    '<th style="text-align:center">Cant. Mensual</th><th style="text-align:center">×'+meses+' Meses</th>' +
+    '<th style="text-align:center">Stock</th><th style="text-align:center">A Comprar</th></tr>';
+  document.getElementById('comp-ofic-thead').innerHTML = thead_ofic;
+
+  var oficRows='', oficTotPer=0, oficTotSt=0, oficTotComp=0, oficItemCount=0;
+  var ofAreas = Object.keys(OFICINA);
+  var ofRowIdx = 0;
+  ofAreas.forEach(function(area) {
+    OFICINA[area].forEach(function(item) {
+      var dotMes = item.q;
+      var dotPer = dotMes*meses;
+      // Resolve cod and official name via MASTER_MAP
+      var master = normalizeMaterial(item.m);
+      var itemCod    = master ? master.cod    : '--';
+      var itemNombre = master ? master.nombre : item.m;
+      // Match stock from inventory
+      var st = 0;
+      if (master) {
+        var stV = S.stockSku[master.cod]!==undefined ? S.stockSku[master.cod] : 0;
+        if (stV > st) st = stV;
+      } else {
+        INVENTARIO_COMPLETO.forEach(function(inv) {
+          var words = item.m.toLowerCase().split(' ').slice(0,3).join(' ');
+          if (inv.nombre.toLowerCase().indexOf(words) >= 0) {
+            var stV = S.stockSku[inv.sku]!==undefined ? S.stockSku[inv.sku] : inv.stock;
+            if (stV > st) st = stV;
+          }
+        });
+      }
+      var aComp = Math.max(0, dotPer-st);
+      oficTotPer+=dotPer; oficTotSt+=st; oficTotComp+=aComp; oficItemCount++;
+      var stColor = aComp>0 ? 'color:var(--red);font-weight:700' : 'color:var(--green)';
+      var noCodNote = itemCod==='--' ? ' <span class="badge b-orange" style="font-size:8.5px">Sin cod</span>' : '';
+      oficRows += '<tr class="'+(ofRowIdx%2?'row-alt':'')+'" data-sec="oficina">' +
+        '<td style="font-size:10.5px;color:var(--gray-text)">'+area+'</td>' +
+        '<td style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">'+itemCod+'</td>' +
+        '<td style="font-size:11.5px">'+itemNombre+noCodNote+'</td>' +
+        '<td style="text-align:center">'+item.u+'</td>' +
+        '<td style="text-align:center;font-family:var(--ffm);font-weight:600">'+fmt(dotMes)+'</td>' +
+        '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:var(--navy-2)">'+fmt(dotPer)+'</td>' +
+        '<td style="text-align:center;font-family:var(--ffm)">'+fmt(st)+'</td>' +
+        '<td style="text-align:center;font-family:var(--ffm);'+stColor+'">'+(aComp>0?fmt(aComp):'--')+'</td></tr>';
+      ofRowIdx++;
+    });
+  });
+  document.getElementById('comp-ofic-tbody').innerHTML = oficRows;
+  document.getElementById('comp-ofic-tfoot').innerHTML = '<tr><td colspan="4" style="padding:8px 13px">TOTAL OFICINA ('+oficItemCount+' items)</td>' +
+    '<td style="text-align:center">'+fmt(oficTotPer)+'</td>' +
+    '<td style="text-align:center">'+fmt(oficTotSt)+'</td>' +
+    '<td style="text-align:center;color:var(--red);font-weight:700">'+fmt(oficTotComp)+'</td></tr>';
+  document.getElementById('comp-ofic-lbl').textContent =
+    oficItemCount + ' items · A comprar: ' + fmt(oficTotComp);
+
+  // ── TABLA CONSOLIDADA ──────────────────────────────────────────────────────
+  // Build unified map: sku -> {nombre, cod, um, suc, cedi, ofic, stock}
+  var consolidated = {};
+  function addConsolidated(sku, cod, nombre, um, suc, cedi, ofic, st) {
+    if (!consolidated[sku]) consolidated[sku] = {sku:sku,cod:cod,nombre:nombre,um:um,suc:0,cedi:0,ofic:0,st:st};
+    consolidated[sku].suc  += suc;
+    consolidated[sku].cedi += cedi;
+    consolidated[sku].ofic += ofic;
+    if (st > consolidated[sku].st) consolidated[sku].st = st;
+  }
+  INSUMOS.forEach(function(ins) {
+    var dotPer = dotTotal(ins)*meses;
+    var st = getStock(ins.id);
+    addConsolidated(ins.cod, ins.cod, ins.nombre, ins.um, dotPer, 0, 0, st);
+  });
+  CEDI_INSUMOS.forEach(function(ci) {
+    var dotPer = (S.cediStock[ci.id]!==undefined?S.cediStock[ci.id]:ci.q)*meses;
+    var st = ci.cod ? (S.stockSku[ci.cod]!==undefined?S.stockSku[ci.cod]:0) : 0;
+    if (ci.cod) addConsolidated(ci.cod, ci.cod, ci.nombre, ci.um, 0, dotPer, 0, st);
+    else addConsolidated('cedi-'+ci.id, '--', ci.nombre, ci.um, 0, dotPer, 0, 0);
+  });
+  ofAreas.forEach(function(area) {
+    OFICINA[area].forEach(function(item) {
+      addConsolidated('ofic-'+item.m.replace(/ /g,'-').substring(0,20), '--', item.m, item.u, 0, 0, item.q*meses, 0);
+    });
+  });
+
+  var consoRows='', totalComp=0, totalPer=0;
+  var keys = Object.keys(consolidated).sort(function(a,b){
+    var ac=Math.max(0,(consolidated[a].suc+consolidated[a].cedi+consolidated[a].ofic)-consolidated[a].st);
+    var bc=Math.max(0,(consolidated[b].suc+consolidated[b].cedi+consolidated[b].ofic)-consolidated[b].st);
+    return bc-ac;
+  });
+  keys.forEach(function(sku, ri) {
+    var c = consolidated[sku];
+    var needTotal = c.suc + c.cedi + c.ofic;
+    var aComp = Math.max(0, needTotal - c.st);
+    if (aComp === 0) return;  // only show items that need to be bought
+    totalComp += aComp; totalPer += needTotal;
+    consoRows += '<tr class="'+(ri%2?'row-alt':'')+'">' +
+      '<td style="font-size:11.5px;font-weight:500">'+c.nombre+'</td>' +
+      '<td style="font-family:var(--ffm);font-size:11px;text-align:center">'+c.cod+'</td>' +
+      '<td style="text-align:center">'+c.um+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">'+(c.suc>0?fmt(c.suc):'--')+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">'+(c.cedi>0?fmt(c.cedi):'--')+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">'+(c.ofic>0?fmt(c.ofic):'--')+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:var(--navy-2)">'+fmt(needTotal)+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm)">'+fmt(c.st)+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:var(--red)">'+fmt(aComp)+'</td></tr>';
+  });
+  document.getElementById('comp-total-tbody').innerHTML = consoRows ||
+    '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--green);font-weight:600">✅ No hay nada que comprar para este período</td></tr>';
+  document.getElementById('comp-total-tfoot').innerHTML =
+    '<tr><td colspan="6" style="padding:8px 13px">TOTAL A COMPRAR</td>' +
+    '<td style="text-align:center">'+fmt(totalPer)+'</td><td></td>' +
+    '<td style="text-align:center;font-size:14px">'+fmt(totalComp)+'</td></tr>';
+
+  // ── KPIs resumen ───────────────────────────────────────────────────────────
+  document.getElementById('comp-kpis').innerHTML =
+    kpi('navy', 'Compra Sucursales', fmt(sucTotComp), 'incluye ext aprobados') +
+    kpi('teal', 'Ext Aprobados', fmt(sucTotExt), 'pedidos extraordinarios') +
+    kpi('blue', 'Compra CEDIS+Oficina', fmt(cediTotComp+oficTotComp), 'unidades x'+meses+' mes') +
+    kpi('red', 'TOTAL A COMPRAR', fmt(sucTotComp+cediTotComp+oficTotComp), 'unidades total');
+
+  // ── Alertas ────────────────────────────────────────────────────────────────
+  document.getElementById('comp-alerts').innerHTML = sucCrit>0 ?
+    '<div class="alert a-red">⚠ '+sucCrit+' insumos de sucursales con stock CRITICO. Compra urgente requerida.</div>' : '';
+
+  // ── Filtro de sección ──────────────────────────────────────────────────────
+  var sf = document.getElementById('comp-filter-sec').value;
+  document.querySelectorAll('.comp-section').forEach(function(el){
+    el.style.display = (!sf || el.dataset.sec===sf) ? '' : 'none';
+  });
+  document.getElementById('comp-total-card').style.display = sf ? 'none' : '';
+}
+
+function filterCompras(st) {
+  ['comp-suc-tbody','comp-cedi-tbody','comp-ofic-tbody'].forEach(function(id){
+    var tbody = document.getElementById(id);
+    if (!tbody) return;
+    tbody.querySelectorAll('tr').forEach(function(tr) {
+      tr.style.display = (!st || !tr.dataset.status || tr.dataset.status===st) ? '' : 'none';
+    });
+  });
+}
+function filterComprasSearch(val) {
+  var v = val.toLowerCase();
+  ['comp-suc-tbody','comp-cedi-tbody','comp-ofic-tbody','comp-total-tbody'].forEach(function(id){
+    var tbody = document.getElementById(id);
+    if (!tbody) return;
+    tbody.querySelectorAll('tr').forEach(function(tr) {
+      tr.style.display = tr.textContent.toLowerCase().indexOf(v)>=0 ? '' : 'none';
+    });
+  });
+}
+
+function exportCompras() {
+  var meses = PERIODO_SUC;
+  var wb = XLSX.utils.book_new();
+  var fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
+
+  // ── Hoja 1: Sucursales ──────────────────────────────────────
+  var dataSuc = [['Cod.','Insumo','U.M.','Total Mes','x'+meses+' Meses','+Ext Aprobados','Stock','A Comprar','Estado']];
+  INSUMOS.forEach(function(ins) {
+    var dotMes = dotTotal(ins);
+    var dotPer = dotMes * meses;
+    var extAp  = getPedExtAprobado(ins.id);
+    var st     = getStock(ins.id);
+    var aComp  = Math.max(0, dotPer + extAp - st);
+    dataSuc.push([ins.cod, ins.nombre, ins.um, dotMes, dotPer, extAp||0, st, aComp, insStatus(ins)]);
+  });
+  var wsSuc = XLSX.utils.aoa_to_sheet(dataSuc);
+  wsSuc['!cols'] = [{wch:10},{wch:38},{wch:7},{wch:12},{wch:12},{wch:16},{wch:10},{wch:12},{wch:10}];
+  _styleSheetHeader(wsSuc, dataSuc[0].length, '0C2340');
+  XLSX.utils.book_append_sheet(wb, wsSuc, 'Sucursales');
+
+  // ── Hoja 2: CEDIS ───────────────────────────────────────────
+  var dataCedi = [['Cod.','Insumo','U.M.','Dot. Mensual','x'+meses+' Meses','Stock','A Comprar']];
+  CEDI_INSUMOS.forEach(function(ci) {
+    var dotMes = S.cediStock[ci.id]!==undefined ? S.cediStock[ci.id] : ci.q;
+    var dotPer = dotMes * meses;
+    var st     = ci.cod ? (S.stockSku[ci.cod]!==undefined ? S.stockSku[ci.cod] : 0) : 0;
+    var aComp  = Math.max(0, dotPer - st);
+    dataCedi.push([ci.cod||'--', ci.nombre, ci.um, dotMes, dotPer, st, aComp]);
+  });
+  var wsCedi = XLSX.utils.aoa_to_sheet(dataCedi);
+  wsCedi['!cols'] = [{wch:10},{wch:38},{wch:7},{wch:14},{wch:12},{wch:10},{wch:12}];
+  _styleSheetHeader(wsCedi, dataCedi[0].length, '065F46');
+  XLSX.utils.book_append_sheet(wb, wsCedi, 'CEDIS');
+
+  // ── Hoja 3: Oficina Central ─────────────────────────────────
+  var dataOfic = [['Area','Cod.','Material','U.M.','Cant. Mensual','x'+meses+' Meses']];
+  Object.keys(OFICINA).forEach(function(area) {
+    OFICINA[area].forEach(function(item) {
+      var master = normalizeMaterial(item.m);
+      dataOfic.push([area, master?master.cod:'--', master?master.nombre:item.m, item.u, item.q, item.q*meses]);
+    });
+  });
+  var wsOfic = XLSX.utils.aoa_to_sheet(dataOfic);
+  wsOfic['!cols'] = [{wch:22},{wch:10},{wch:38},{wch:7},{wch:14},{wch:12}];
+  _styleSheetHeader(wsOfic, dataOfic[0].length, '4C1D95');
+  XLSX.utils.book_append_sheet(wb, wsOfic, 'Oficina Central');
+
+  // ── Hoja 4: Consolidado ────────────────────────────────────
+  var dataConsol = [['Insumo','Cod.','U.M.','Sucursales','CEDIS','Oficina','Total Periodo','Stock','A COMPRAR']];
+  var consolidated = {};
+  INSUMOS.forEach(function(ins) {
+    var dotPer = dotTotal(ins)*meses + getPedExtAprobado(ins.id);
+    var st = getStock(ins.id);
+    if (!consolidated[ins.cod]) consolidated[ins.cod] = {nombre:ins.nombre,um:ins.um,suc:0,cedi:0,ofic:0,st:st};
+    consolidated[ins.cod].suc += dotPer;
+  });
+  CEDI_INSUMOS.forEach(function(ci) {
+    var dotPer = (S.cediStock[ci.id]!==undefined?S.cediStock[ci.id]:ci.q)*meses;
+    var st = ci.cod?(S.stockSku[ci.cod]!==undefined?S.stockSku[ci.cod]:0):0;
+    var key = ci.cod||('cedi-'+ci.id);
+    if (!consolidated[key]) consolidated[key] = {nombre:ci.nombre,um:ci.um,suc:0,cedi:0,ofic:0,st:st};
+    consolidated[key].cedi += dotPer;
+  });
+  Object.keys(OFICINA).forEach(function(area){
+    OFICINA[area].forEach(function(item){
+      var key = 'ofic-'+item.m.substring(0,15);
+      if (!consolidated[key]) consolidated[key] = {nombre:item.m,um:item.u,suc:0,cedi:0,ofic:0,st:0};
+      consolidated[key].ofic += item.q*meses;
+    });
+  });
+  Object.keys(consolidated).forEach(function(k) {
+    var c = consolidated[k];
+    var need = c.suc + c.cedi + c.ofic;
+    var aComp = Math.max(0, need - c.st);
+    if (aComp > 0) dataConsol.push([c.nombre, k, c.um, c.suc||0, c.cedi||0, c.ofic||0, need, c.st, aComp]);
+  });
+  var wsConsol = XLSX.utils.aoa_to_sheet(dataConsol);
+  wsConsol['!cols'] = [{wch:38},{wch:10},{wch:7},{wch:13},{wch:10},{wch:10},{wch:14},{wch:10},{wch:13}];
+  _styleSheetHeader(wsConsol, dataConsol[0].length, '071A36');
+  XLSX.utils.book_append_sheet(wb, wsConsol, 'Consolidado');
+
+  XLSX.writeFile(wb, 'Plan_Compras_' + fecha + '.xlsx');
+}
+
+// Helper: pinta la fila 1 como cabecera con color
+function _styleSheetHeader(ws, ncols, colorHex) {
+  for (var c = 0; c < ncols; c++) {
+    var addr = XLSX.utils.encode_cell({r:0, c:c});
+    if (!ws[addr]) continue;
+    ws[addr].s = {
+      font: {bold:true, color:{rgb:'FFFFFF'}},
+      fill: {fgColor:{rgb:colorHex}},
+      alignment: {horizontal:'center', wrapText:true}
+    };
+  }
+}
+
+// ============================================================
+//  CEDI
+// ============================================================
+function renderCedi() {
+  var meses = PERIODO_CEDI;
+  var labels = {1:'Mensual',3:'Trimestral',6:'Semestral'};
+  var totalQ = 0, totalDist = 0;
+  CEDI_INSUMOS.forEach(function(i) {
+    totalQ += (S.cediStock[i.id]!==undefined ? S.cediStock[i.id] : i.q) * meses;
+    totalDist += S.cediDesp[i.id]||0;
+  });
+  var pct = totalQ>0 ? Math.round(totalDist/totalQ*100) : 0;
+
+  document.getElementById('cedi-kpis').innerHTML =
+    kpi('navy','Items CEDIS', CEDI_INSUMOS.length, 'Dotacion operativa') +
+    kpi('blue','Total '+labels[meses], fmt(totalQ), 'unidades') +
+    kpi('green','Distribuido', fmt(totalDist), 'mes actual') +
+    kpi(pct>=90?'green':'orange','Cumplimiento', pct+'%', 'mes actual');
+
+  document.getElementById('cedi-thead').innerHTML = '<tr><th>Insumo</th><th style="text-align:center">U.M.</th><th style="text-align:center">Cod.</th>' +
+    '<th style="text-align:center">Cant. Mensual</th>' +
+    (meses>1 ? '<th style="text-align:center">x'+meses+' Meses</th>' : '') + '</tr>';
+
+  var grandTotal = 0;
+  var rows = '';
+  CEDI_INSUMOS.forEach(function(ins, ri) {
+    var q = S.cediStock[ins.id]!==undefined ? S.cediStock[ins.id] : ins.q;
+    var total = q*meses; grandTotal += total;
+    rows += '<tr class="' + (ri%2?'row-alt':'') + '">' +
+      '<td style="font-size:11.5px">' + ins.nombre + '</td>' +
+      '<td style="text-align:center">' + ins.um + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-size:10.5px">' + (ins.cod||'--') + '</td>' +
+      '<td style="text-align:center"><input class="ed" type="number" min="0" value="' + q + '" onchange="updateCediQ(\'' + ins.id + '\',this.value)"></td>' +
+      (meses>1 ? '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:var(--navy-2)">' + fmt(total) + '</td>' : '') + '</tr>';
+  });
+  document.getElementById('cedi-tbody').innerHTML = rows;
+  document.getElementById('cedi-tfoot').innerHTML = '<tr><td colspan="' + (meses>1?3:3) + '">TOTAL</td>' +
+    '<td style="text-align:center;font-weight:700">' + fmt(CEDI_INSUMOS.reduce(function(a,i){ return a+(S.cediStock[i.id]!==undefined?S.cediStock[i.id]:i.q);},0)) + '</td>' +
+    (meses>1 ? '<td style="text-align:center;font-weight:700">' + fmt(grandTotal) + '</td>' : '') + '</tr>';
+  document.getElementById('cedi-total-lbl').textContent = 'Plan ' + labels[meses] + ' - ' + fmt(grandTotal) + ' unidades';
+
+  var despRows = '';
+  CEDI_INSUMOS.forEach(function(ins, ri) {
+    var dotMes = S.cediStock[ins.id]!==undefined ? S.cediStock[ins.id] : ins.q;
+    var dist = S.cediDesp[ins.id]||0;
+    var pend = Math.max(0, dotMes-dist);
+    var stato = dist===0 ? 'pendiente' : dist>=dotMes ? 'completo' : 'parcial';
+    var stBadge = stato==='completo' ? '<span class="badge b-green">Completo</span>' :
+      stato==='parcial' ? '<span class="badge b-orange">Parcial</span>' :
+      '<span class="badge b-red">Pendiente</span>';
+    despRows += '<tr class="' + (ri%2?'row-alt':'') + '">' +
+      '<td style="font-size:11.5px">' + ins.nombre + '</td><td style="text-align:center">' + ins.um + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-size:10.5px">' + (ins.cod||'--') + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:600">' + dotMes + '</td>' +
+      '<td style="text-align:center"><input class="ed' + (stato==='completo'?' desp-done':'') + '" type="number" min="0" value="' + dist + '" onchange="onCediDespChange(\'' + ins.id + '\',this,' + dotMes + ')"></td>' +
+      '<td style="text-align:center;font-family:var(--ffm);' + (pend>0?'color:var(--red);font-weight:600':'') + '">' + (pend>0?pend:'--') + '</td>' +
+      '<td style="text-align:center">' + stBadge + '</td></tr>';
+  });
+  document.getElementById('cedi-desp-tbody').innerHTML = despRows;
+}
+
+function updateCediQ(id, val) {
+  S.cediStock[id] = Math.max(0, parseInt(val)||0);
+  saveState(); renderCedi();
+}
+
+function onCediDespChange(id, input, dotMes) {
+  var val = Math.max(0, parseInt(input.value)||0);
+  input.value = val;
+  S.cediDesp[id] = val; saveState();
+  var tr = input.closest('tr');
+  var pend = Math.max(0, dotMes-val);
+  tr.children[5].textContent = pend>0 ? pend : '--';
+  tr.children[5].style.color = pend>0 ? 'var(--red)' : '';
+  var stato = val===0 ? 'pendiente' : val>=dotMes ? 'completo' : 'parcial';
+  input.className = 'ed' + (stato==='completo'?' desp-done':'');
+  tr.children[6].innerHTML = stato==='completo' ? '<span class="badge b-green">Completo</span>' :
+    stato==='parcial' ? '<span class="badge b-orange">Parcial</span>' :
+    '<span class="badge b-red">Pendiente</span>';
+  toast('Guardado');
+}
+
+function completarCedi() {
+  if (!confirm('Marcar todos los insumos CEDIS como distribuidos?')) return;
+  CEDI_INSUMOS.forEach(function(i){ S.cediDesp[i.id] = S.cediStock[i.id]!==undefined?S.cediStock[i.id]:i.q; });
+  saveState(); renderCedi(); toast('CEDIS marcado completo');
+}
+
+function resetCedi() { if(!confirm('Restaurar cantidades originales?'))return; S.cediStock={}; saveState(); renderCedi(); toast('Cantidades restauradas'); }
+function resetCediDesp() { if(!confirm('Limpiar despacho CEDIS?'))return; S.cediDesp={}; saveState(); renderCedi(); toast('Despacho CEDIS limpiado'); }
+
+function exportCedi() {
+  var meses = PERIODO_CEDI;
+  var csv = 'Insumo,UM,Cod,Cant Mensual,Total Periodo,Distribuido,Pendiente,Estado\n';
+  CEDI_INSUMOS.forEach(function(i) {
+    var q=S.cediStock[i.id]!==undefined?S.cediStock[i.id]:i.q;
+    var dist=S.cediDesp[i.id]||0, pend=Math.max(0,q-dist);
+    var stato=dist===0?'Pendiente':dist>=q?'Completo':'Parcial';
+    csv += '"'+i.nombre+'","'+i.um+'","'+(i.cod||'')+'",'+q+','+q*meses+','+dist+','+pend+',"'+stato+'"\n';
+  });
+  dlCSV(csv, 'cedis_insumos.csv');
+}
+
+// ============================================================
+//  TRASPASOS
+// ============================================================
+var _trasRows = [];
+
+function renderTraspasos() {
+  document.getElementById('tras-resumen').style.display = 'none';
+  document.getElementById('btn-dl-tras').style.display = 'none';
+}
+
+function generarTraspasos() {
+  var modo      = document.getElementById('tras-modo').value;
+  var regFil    = document.getElementById('tras-reg').value;
+  var prioridad = parseInt(document.getElementById('tras-prioridad').value)||100;
+  _trasRows = [];
+  var sucCount = 0;
+  var sucFil = SUCURSALES.filter(function(s){ return !regFil||s.reg===regFil; });
+
+  sucFil.forEach(function(s) {
+    var sucTiene = false;
+    INSUMOS.forEach(function(ins) {
+      var dot  = dotQ(ins, s.cod);
+      if (dot === 0) return;
+      var dist=getDistCant(s.cod,ins.id);if(dist===0)return;
+      var stato=dist>=dot?'completo':'parcial';
+      if(modo==='completo'&&stato!=='completo')return;
+      var sku=getDistSku(s.cod,ins.id);
+      if (!sku) return;
+      _trasRows.push({origen:5489, destino:parseInt(s.cod), suc:s.suc, reg:s.reg, sku:sku, insumo:ins.nombre, cantidad:dist, prioridad:prioridad});
+      sucTiene = true;
+    });
+    if (sucTiene) sucCount++;
+  });
+
+  document.getElementById('tras-resumen').style.display = 'block';
+  document.getElementById('btn-dl-tras').style.display = '';
+
+  var regs = [];
+  _trasRows.forEach(function(r){ if(regs.indexOf(r.reg)<0) regs.push(r.reg); });
+  document.getElementById('tras-kpis').innerHTML =
+    kpi('navy','Sucursales', sucCount, 'con despacho') +
+    kpi('blue','Filas', _trasRows.length, 'registros') +
+    kpi('gold','Regionales', regs.length, regs.join(', ')) +
+    kpi('green','Origen', '5489', 'Almacen Insumos Limpieza');
+
+  document.getElementById('tras-count-lbl').textContent = _trasRows.length + ' filas generadas - ' + sucCount + ' sucursales';
+
+  if (_trasRows.length === 0) {
+    document.getElementById('tras-tbody').innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--gray-text)">No hay despachos confirmados. Ve a Despacho y registra las distribuciones primero.</td></tr>';
+    toast('Sin despachos confirmados aun');
+    return;
+  }
+  document.getElementById('tras-tbody').innerHTML = _trasRows.map(function(r, ri) {
+    return '<tr class="' + (ri%2?'row-alt':'') + '">' +
+      '<td style="font-family:var(--ffm);text-align:center;font-weight:700">' + r.origen + '</td>' +
+      '<td style="font-family:var(--ffm);text-align:center;font-weight:700;color:var(--blue)">' + r.destino + '</td>' +
+      '<td style="font-size:11px;font-weight:500">' + r.suc + '</td>' +
+      '<td style="font-size:11px"><span class="badge b-navy">' + r.reg + '</span></td>' +
+      '<td style="font-family:var(--ffm);text-align:center">' + r.sku + '</td>' +
+      '<td style="font-size:11px;color:var(--gray-text)">' + r.insumo + '</td>' +
+      '<td style="font-family:var(--ffm);text-align:center;font-weight:700">' + r.cantidad + '</td>' +
+      '<td style="font-family:var(--ffm);text-align:center">' + r.prioridad + '</td></tr>';
+  }).join('');
+  toast(_trasRows.length + ' filas generadas');
+}
+
+function descargarTraspasos() {
+  if (!_trasRows.length) { toast('Genera primero los traspasos'); return; }
+  var csv = 'ORIGEN,DESTINO,SKU,CANTIDAD,PRIORIDAD\n';
+  _trasRows.forEach(function(r) { csv += r.origen+','+r.destino+','+r.sku+','+r.cantidad+','+r.prioridad+'\n'; });
+  dlCSV(csv, 'TRASPASOS_INSUMOS_' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '.csv');
+  toast('Archivo descargado');
+}
+
+// ============================================================
+//  CATALOGO
+// ============================================================
+function renderCatalogo() {
+  document.getElementById('cat-tbody').innerHTML = INVENTARIO_COMPLETO.map(function(item, ri) {
+    var stColor = item.stock===0 ? 'color:var(--red);font-weight:700' : item.stock<=5 ? 'color:var(--orange);font-weight:600' : '';
+    var MS={'27232':1,'25644':1,'27233':1,'25645':1,'27229':1,'25648':1};
+    var mn=MS[item.sku]?'&nbsp;<span class="badge b-gold" style="font-size:9px">Multi-SKU</span>':'';
+    return '<tr class="' + (ri%2?'row-alt':'') + '">' +
+      '<td style="font-size:10.5px;color:var(--gray-text);font-family:var(--ffm)">' + (ri+1) + '</td>' +
+      '<td style="font-family:var(--ffm);font-weight:600;color:var(--navy-2)">' + item.sku + '</td>' +
+      '<td>' + item.nombre + mn + '</td>' +
+      '<td style="text-align:center">' + item.um + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);' + stColor + '">' + item.stock + '</td></tr>';
+  }).join('');
+}
+
+function exportCatalogo() {
+  var csv = 'SKU,DESCRIPCION,UM,STOCK\n';
+  INVENTARIO_COMPLETO.forEach(function(i){ csv += '"'+i.sku+'","'+i.nombre+'","'+i.um+'",'+i.stock+'\n'; });
+  dlCSV(csv, 'catalogo_sku_insumos.csv');
+}
+
+// ============================================================
+//  OFICINA
+// ============================================================
+function renderOficina() {
+  var areas = Object.keys(OFICINA);
+  var colors = ['#0c2340','#065F46','#92400E','#4C1D95','#0369A1','#9A3412','#0F766E'];
+  var totalU = 0;
+  areas.forEach(function(a){ OFICINA[a].forEach(function(x){ totalU+=x.q; }); });
+  document.getElementById('ofic-kpis').innerHTML =
+    kpi('navy','Areas', areas.length, '') +
+    kpi('blue','Total items', areas.reduce(function(a,k){return a+OFICINA[k].length;},0), '') +
+    kpi('gold','Unidades/Mes', totalU, '');
+  document.getElementById('ofic-content').innerHTML = areas.map(function(area, ai) {
+    var items = OFICINA[area];
+    var tot = items.reduce(function(s,x){return s+x.q;},0);
+    return '<div class="card" style="margin-bottom:14px">' +
+      '<div class="card-hdr" style="background:'+colors[ai%colors.length]+'">' +
+      '<span style="color:#fff;font-weight:700;font-size:13px">'+area+'</span>' +
+      '<span style="color:rgba(255,255,255,.65);font-size:11px">'+items.length+' items - '+tot+' unidades/mes</span></div>' +
+      '<div class="tbl-wrap"><table><thead><tr><th>Material</th><th style="text-align:center">U.M.</th><th style="text-align:center">Cant. Mensual</th></tr></thead>' +
+      '<tbody>' + items.map(function(it,ri){
+        var master = normalizeMaterial(it.m);
+        var cod = it.cod||(master?master.cod:'--');
+        return '<tr class="'+(ri%2?'row-alt':'')+'"><td style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">'+cod+'</td><td>'+it.m+'</td><td style="text-align:center">'+it.u+'</td><td style="text-align:center;font-family:var(--ffm);font-weight:600">'+it.q+'</td><td style="font-size:10.5px;color:var(--gray-text)">'+(it.piso||'')+'</td></tr>';
+      }).join('') +
+      '</tbody></table></div></div>';
+  }).join('');
+}
+
+// ============================================================
+//  REAL-TIME REFRESH
+// ============================================================
+function refreshDependentViews() {
+  // Re-render any visible page that depends on stock
+  var activePage = document.querySelector('.page.active');
+  if (!activePage) return;
+  var pageId = activePage.id;
+  if (pageId === 'page-comprar')    renderCompras();
+  if (pageId === 'page-inicio')     renderInicio();
+  if (pageId === 'page-despacho')   renderDespacho();
+}
+
+// ============================================================
+//  UTILS
+// ============================================================
+function searchTable(tbodyId, val) {
+  var v = val.toLowerCase();
+  document.querySelectorAll('#'+tbodyId+' tr').forEach(function(tr) {
+    if (tr.classList.contains('tr-region')||tr.classList.contains('tr-super')) { tr.style.display=''; return; }
+    tr.style.display = tr.textContent.toLowerCase().indexOf(v)>=0 ? '' : 'none';
+  });
+}
+
+function dlCSV(csv, fname) {
+  var blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href=url; a.download=fname; a.click();
+  URL.revokeObjectURL(url);
+}
+
+var _toastT;
+function toast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('on');
+  clearTimeout(_toastT); _toastT = setTimeout(function(){ t.classList.remove('on'); }, 2400);
+}
+
+// ============================================================
+//  RENDER MAP + INIT
+// ============================================================
+RENDERS.inicio        = renderInicio;
+RENDERS.inventario    = renderInventario;
+RENDERS.dotacion      = renderDotacion;
+RENDERS.despacho      = renderDespacho;
+RENDERS.comprar       = renderCompras;
+RENDERS.cedi          = renderCedi;
+RENDERS.traspasos     = renderTraspasos;
+RENDERS.catalogo      = renderCatalogo;
+RENDERS.oficina       = renderOficina;
+RENDERS['desp-oficina']    = renderDespOficina;
+RENDERS['pedidos-ext']     = renderPedidosExt;
+
+// ============================================================
+//  PEDIDOS EXTRAORDINARIOS
+// ============================================================
+var _pextTab = 'pendiente';
+var SHEETS_ID  = '1c_399CP5tbjExylSH8BsEASIcWSK3XHXiwRu9QW_mcc';
+var SHEETS_GID = '884489091';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZg9krGeS-UV6cv3L7b_upe2R2mRCxrRuhv4J0xrKgpymMbL3vqGoUtQCphdPfc7rNIg/exec';
+
+// ── Carga desde Google Sheets ──────────────────────────────
+function cargarDesdeSheets() {
+  var btn = document.getElementById('btn-sheets-load');
+  var statusEl = document.getElementById('pext-sheets-status');
+  if (btn) { btn.textContent = '⏳ Cargando...'; btn.disabled = true; }
+  if (statusEl) { statusEl.style.display='none'; }
+
+  var url = 'https://docs.google.com/spreadsheets/d/' + SHEETS_ID +
+            '/gviz/tq?tqx=out:csv&gid=' + SHEETS_GID + '&t=' + Date.now();
+
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.text();
+    })
+    .then(function(csv) {
+      var rows = parseCSV(csv);
+      if (rows.length < 2) throw new Error('Sin datos en el sheet');
+
+      // Fila 0 = encabezados: Solicitud|Fecha|Solicitante|Sucursal|SKU|Descripcion|Cantidad|Motivo|Estado
+      var headers = rows[0].map(function(h){ return h.trim().toLowerCase(); });
+      var iSol  = headers.indexOf('solicitud');
+      var iFech = headers.indexOf('fecha');
+      var iSoli = headers.indexOf('solicitante');
+      var iSuc  = headers.indexOf('sucursal');
+      var iSku  = headers.indexOf('sku');
+      var iDesc = headers.indexOf('descripcion');
+      var iCant = headers.indexOf('cantidad');
+      var iMot  = headers.indexOf('motivo');
+      var iEst  = headers.indexOf('estado');
+
+      if (!S.pedExt) S.pedExt = [];
+
+      var importados = 0, actualizados = 0;
+      rows.slice(1).forEach(function(row) {
+        if (!row[iSol] && !row[iFech]) return; // fila vacía
+        var solId  = (row[iSol]  || '').trim();
+        var fecha  = (row[iFech] || '').trim();
+        var solit  = (row[iSoli] || '').trim();
+        var sucNom = (row[iSuc]  || '').trim();
+        var sku    = (row[iSku]  || '').trim();
+        var desc   = (row[iDesc] || '').trim();
+        var cant   = parseInt(row[iCant]) || 0;
+        var motivo = (row[iMot]  || '').trim();
+        var estado = (row[iEst]  || 'pendiente').trim().toLowerCase();
+        if (estado !== 'aprobado' && estado !== 'rechazado') estado = 'pendiente';
+
+        // Buscar insumo por SKU
+        var ins = null;
+        var insId = 0;
+        INSUMOS.forEach(function(i){
+          if (i.cod === sku) { ins = i; insId = i.id; }
+        });
+        // Si no coincide por cod, buscar en INVENTARIO_COMPLETO
+        if (!ins) {
+          var inv = INVENTARIO_COMPLETO.find(function(v){ return v.sku === sku; });
+          if (inv) desc = inv.nombre;
+        }
+
+        // Buscar sucursal por nombre parcial o código
+        var sucCod = '';
+        SUCURSALES.forEach(function(s){
+          if (s.suc.toLowerCase().indexOf(sucNom.toLowerCase()) >= 0 ||
+              sucNom.indexOf(s.cod) >= 0 || s.cod === sucNom) {
+            sucCod = s.cod;
+          }
+        });
+
+        // Si ya existe por solicitudId, actualizar estado SOLO si el Sheet tiene un estado más avanzado
+        var existing = S.pedExt.find(function(p){ return p.solId === solId && solId !== ''; });
+        if (existing) {
+          // El Sheet es la fuente de verdad — siempre sincronizar
+          existing.estado = estado;
+          existing.cant   = cant;
+          existing.motivo = motivo;
+          actualizados++;
+        } else {
+          S.pedExt.push({
+            solId:   solId,
+            insId:   insId,
+            cant:    cant,
+            solicit: solit,
+            motivo:  motivo,
+            sucCod:  sucCod,
+            sucNom:  sucNom,
+            fecha:   fecha,
+            sku:     sku,
+            desc:    desc || (ins ? ins.nombre : ''),
+            estado:  estado,
+            fromSheets: true
+          });
+          importados++;
+        }
+      });
+
+      saveState();
+      renderPedidosExt();
+
+      var msg = '✅ Google Sheets: ' + importados + ' importados, ' + actualizados + ' actualizados';
+      if (statusEl) {
+        statusEl.className = 'alert a-green';
+        statusEl.textContent = msg;
+        statusEl.style.display = '';
+        setTimeout(function(){ statusEl.style.display='none'; }, 4000);
+      }
+      toast(msg);
+      if (document.getElementById('page-inicio').classList.contains('active')) renderInicio();
+    })
+    .catch(function(err) {
+      var msg = '⚠️ No se pudo cargar desde Sheets: ' + err.message + '. Verifica que el Sheet sea público.';
+      if (statusEl) {
+        statusEl.className = 'alert a-red';
+        statusEl.textContent = msg;
+        statusEl.style.display = '';
+      }
+      toast('Error al cargar Sheets');
+    })
+    .finally(function() {
+      if (btn) { btn.textContent = '🔄 Actualizar'; btn.disabled = false; }
+    });
+}
+
+// ── Parser CSV robusto (maneja comillas y comas dentro de campos) ──
+function parseCSV(text) {
+  var rows = [];
+  var lines = text.split(/\r?\n/);
+  lines.forEach(function(line) {
+    if (!line.trim()) return;
+    var cols = [], cur = '', inQ = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (c === '"') {
+        if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+        else inQ = !inQ;
+      } else if (c === ',' && !inQ) {
+        cols.push(cur); cur = '';
+      } else {
+        cur += c;
+      }
+    }
+    cols.push(cur);
+    rows.push(cols);
+  });
+  return rows;
+}
+
+function renderPedidosExt() {
+  if (!S.pedExt) S.pedExt = [];
+
+  // Poblar selector de sucursales (una sola vez)
+  var selSuc = document.getElementById('pext-suc');
+  if (selSuc && selSuc.options.length <= 1) {
+    SUCURSALES.forEach(function(s){
+      var opt = document.createElement('option');
+      opt.value = s.cod; opt.textContent = s.suc + ' (' + s.cod + ')';
+      selSuc.appendChild(opt);
+    });
+  }
+  // Poblar selector de insumos (una sola vez)
+  var selIns = document.getElementById('pext-ins');
+  if (selIns && selIns.options.length <= 1) {
+    INSUMOS.forEach(function(i){
+      var opt = document.createElement('option');
+      opt.value = i.id; opt.textContent = i.nombre + ' (' + i.um + ')';
+      selIns.appendChild(opt);
+    });
+  }
+  // Fecha por defecto hoy
+  var fechaEl = document.getElementById('pext-fecha');
+  if (fechaEl && !fechaEl.value) fechaEl.value = new Date().toISOString().split('T')[0];
+
+  // Auto-cargar desde Sheets la primera vez que se abre el módulo
+  if (!S._pextLoaded) { S._pextLoaded = true; cargarDesdeSheets(); return; }
+
+  var pend   = S.pedExt.filter(function(p){ return p.estado==='pendiente'; });
+  var aprob  = S.pedExt.filter(function(p){ return p.estado==='aprobado'; });
+  var rechaz = S.pedExt.filter(function(p){ return p.estado==='rechazado'; });
+  var pendU  = pend.reduce(function(a,p){ return a+p.cant; }, 0);
+  var aprobU = aprob.reduce(function(a,p){ return a+p.cant; }, 0);
+  var rechazU= rechaz.reduce(function(a,p){ return a+p.cant; }, 0);
+
+  // KPIs principales
+  document.getElementById('pext-kpis').innerHTML =
+    kpi('orange', 'Pendientes',        pend.length,   pendU + ' unidades') +
+    kpi('green',  'Aprobadas',         aprob.length,  aprobU + ' unidades · ' + aprob.length + ' SKUs') +
+    kpi('red',    'Rechazadas',        rechaz.length,  rechazU + ' unidades') +
+    kpi('navy',   'Total Solicitudes', S.pedExt.length, 'Cargadas desde sistema');
+
+  // Badges en tabs
+  document.getElementById('pext-tab-cnt-pendiente').textContent = pend.length;
+  document.getElementById('pext-tab-cnt-aprobado').textContent  = aprob.length;
+  document.getElementById('pext-tab-cnt-rechazado').textContent = rechaz.length;
+
+  _renderPextTab(_pextTab);
+}
+
+function _renderPextTab(tab) {
+  if (!S.pedExt) S.pedExt = [];
+  var data = S.pedExt.filter(function(p){ return p.estado === tab; });
+  var units = data.reduce(function(a,p){ return a+p.cant; }, 0);
+
+  var miniKpiEl = document.getElementById('pext-mini-kpis');
+  if (tab === 'pendiente') {
+    miniKpiEl.innerHTML =
+      kpi('orange', 'Solicitudes Pendientes', data.length, 'Esperando aprobacion') +
+      kpi('orange', 'Unidades Pendientes',    units,       'Total solicitado');
+    document.getElementById('pext-table-title').textContent = 'Solicitudes Pendientes de Aprobacion';
+  } else if (tab === 'aprobado') {
+    miniKpiEl.innerHTML =
+      kpi('green', 'Solicitudes Aprobadas', data.length, 'Incluidas en plan de compras') +
+      kpi('green', 'Unidades Aprobadas',    units,       'Total aprobado');
+    document.getElementById('pext-table-title').textContent = 'Solicitudes Aprobadas';
+  } else {
+    miniKpiEl.innerHTML =
+      kpi('red', 'Solicitudes Rechazadas', data.length, 'No incluidas en plan') +
+      kpi('red', 'Unidades Rechazadas',    units,       'Total rechazado');
+    document.getElementById('pext-table-title').textContent = 'Solicitudes Rechazadas';
+  }
+
+  var rows = '';
+  data.forEach(function(p, ri) {
+    var globalIdx = S.pedExt.indexOf(p);
+    var ins = INSUMOS.find(function(i){ return i.id === p.insId; });
+    var suc = SUCURSALES.find(function(s){ return s.cod === p.sucCod; });
+    var stBadge = p.estado === 'aprobado'
+      ? '<span class="badge b-green">✓ Aprobado</span>'
+      : p.estado === 'rechazado'
+        ? '<span class="badge b-red">✗ Rechazado</span>'
+        : '<span class="badge b-orange">Pendiente</span>';
+    rows += '<tr class="' + (ri%2?'row-alt':'') + '">' +
+      '<td style="font-family:var(--ffm);font-size:10px;color:var(--gray-text)">' + (p.fecha||'--') + (p.fromSheets ? '<br><span class="badge b-blue" style="font-size:8px">Sheets</span>' : '') + '</td>' +
+      '<td style="font-size:11px">' + (p.solicit||'--') + '</td>' +
+      '<td style="font-size:11px">' + (suc ? suc.suc : (p.sucNom || p.sucCod || '--')) + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">' + (ins?ins.cod:(p.sku||'--')) + '</td>' +
+      '<td style="font-size:11.5px;font-weight:500">' + (ins?ins.nombre:(p.desc||'--')) + '</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700;color:var(--navy-2)">' + p.cant + '</td>' +
+      '<td style="font-size:11px;color:var(--gray-text)">' + (p.motivo||'--') + '</td>' +
+      '<td style="text-align:center">' + stBadge + '</td></tr>';
+  });
+  var emptyMsg = tab==='pendiente' ? '\u2705 No hay solicitudes pendientes' :
+                 tab==='aprobado'  ? 'Sin solicitudes aprobadas' : 'Sin solicitudes rechazadas';
+  document.getElementById('pext-tbody').innerHTML = rows ||
+    '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--green);font-weight:600">' + emptyMsg + '</td></tr>';
+}
+
+function switchPextTab(tab, btn) {
+  _pextTab = tab;
+  document.querySelectorAll('#pext-tabs .tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var srch = document.getElementById('pext-search');
+  if (srch) srch.value = '';
+  _renderPextTab(tab);
+}
+
+function filterPextTable(val) {
+  var v = val.toLowerCase();
+  document.querySelectorAll('#pext-tbody tr').forEach(function(tr){
+    tr.style.display = tr.textContent.toLowerCase().indexOf(v) >= 0 ? '' : 'none';
+  });
+}
+
+function agregarPedidoExt() {
+  if (!S.pedExt) S.pedExt = [];
+  var insId   = parseInt(document.getElementById('pext-ins').value);
+  var cant    = parseInt(document.getElementById('pext-cant').value) || 0;
+  var solicit = document.getElementById('pext-solicit').value.trim();
+  var motivo  = document.getElementById('pext-motivo').value.trim();
+  var sucCod  = document.getElementById('pext-suc').value;
+  var fecha   = document.getElementById('pext-fecha').value;
+  if (!insId)    { toast('Selecciona un insumo'); return; }
+  if (cant <= 0) { toast('Ingresa una cantidad mayor a 0'); return; }
+
+  var ins = INSUMOS.find(function(i){ return i.id === insId; });
+  var suc = SUCURSALES.find(function(s){ return s.cod === sucCod; });
+
+  // Agregar localmente primero con estado pendiente
+  var nuevoPedido = {
+    insId:      insId,
+    cant:       cant,
+    solicit:    solicit,
+    motivo:     motivo,
+    sucCod:     sucCod,
+    sucNom:     suc ? suc.suc : sucCod,
+    fecha:      fecha,
+    sku:        ins ? ins.cod : '',
+    desc:       ins ? ins.nombre : '',
+    estado:     'pendiente',
+    fromSheets: true,
+    solId:      null  // se asignará cuando el Sheet responda
+  };
+  S.pedExt.push(nuevoPedido);
+  var localIdx = S.pedExt.length - 1;
+  saveState(); renderPedidosExt(); limpiarFormPedidoExt();
+  toast('⏳ Guardando en Sheets...');
+  if (document.getElementById('page-inicio').classList.contains('active')) renderInicio();
+
+  // Crear en Google Sheets
+  var payloadCrear = {
+    accion:      'crear',
+    fecha:       fecha,
+    solicitante: solicit,
+    sucursal:    suc ? suc.suc : sucCod,
+    sku:         ins ? ins.cod : '',
+    descripcion: ins ? ins.nombre : '',
+    cantidad:    cant,
+    motivo:      motivo
+  };
+  fetch(APPS_SCRIPT_URL, {
+    method:  'POST',
+    mode:    'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body:    JSON.stringify(payloadCrear)
+  })
+  .then(function() {
+    toast('✅ Solicitud enviada a Sheets');
+  })
+  .catch(function() {
+    toast('⚠️ Sin conexión a Sheets. Solicitud guardada solo localmente.');
+  });
+}
+
+function cambiarEstadoPedidoExt(idx, estado) {
+  if (!S.pedExt || !S.pedExt[idx]) return;
+  var pedido = S.pedExt[idx];
+  var estadoSheet = estado === 'aprobado' ? 'APROBADO' : estado === 'rechazado' ? 'RECHAZADO' : 'PENDIENTE';
+
+  // Actualizar localmente de inmediato
+  pedido.estado = estado;
+  saveState();
+  renderPedidosExt();
+  if (document.getElementById('page-inicio').classList.contains('active')) renderInicio();
+
+  // Si el pedido viene del Sheet (tiene solId), escribir de vuelta
+  if (pedido.solId && pedido.fromSheets) {
+    toast('⏳ Sincronizando con Sheets...');
+    var payload = JSON.stringify({
+      accion:    'actualizar',
+      solicitud: pedido.solId,
+      estado:    estadoSheet
+    });
+    // Usar no-cors + URL con parámetros para evitar preflight CORS
+    fetch(APPS_SCRIPT_URL + '?accion=actualizar&solicitud=' + encodeURIComponent(pedido.solId) + '&estado=' + encodeURIComponent(estadoSheet), {
+      method: 'POST',
+      mode:   'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: payload
+    })
+    .then(function() {
+      // no-cors no devuelve respuesta legible, pero si llegó aquí es que se envió
+      toast(estado==='aprobado' ? '✅ Aprobado y sincronizado en Sheets' :
+            estado==='rechazado' ? '❌ Rechazado y sincronizado en Sheets' : '↺ Actualizado en Sheets');
+    })
+    .catch(function() {
+      toast('⚠️ Sin conexión. Cambio guardado localmente.');
+    });
+  } else {
+    toast(estado==='aprobado' ? '✅ Aprobado — se suma en Plan de Compras' :
+          estado==='rechazado' ? '❌ Rechazado' : '↺ Devuelto a pendiente');
+  }
+}
+
+function eliminarPedidoExt(idx) {
+  if (!confirm('\u00bfEliminar esta solicitud?')) return;
+  S.pedExt.splice(idx, 1);
+  saveState(); renderPedidosExt(); toast('Solicitud eliminada');
+  if (document.getElementById('page-inicio').classList.contains('active')) renderInicio();
+}
+
+function limpiarFormPedidoExt() {
+  ['pext-ins','pext-cant','pext-solicit','pext-motivo','pext-suc','pext-sku'].forEach(function(id){
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+}
+
+function limpiarTodosPedidosExt() {
+  if (!confirm('\u00bfEliminar todas las solicitudes?')) return;
+  S.pedExt = []; saveState(); renderPedidosExt(); toast('Solicitudes eliminadas');
+}
+
+function exportPedidosExt() {
+  if (!S.pedExt || !S.pedExt.length) { toast('No hay solicitudes para exportar'); return; }
+  var csv = 'Fecha,Solicitante,Sucursal,SKU,Descripcion,Cantidad,Motivo,Estado\n';
+  S.pedExt.forEach(function(p) {
+    var ins = INSUMOS.find(function(i){ return i.id === p.insId; });
+    var suc = SUCURSALES.find(function(s){ return s.cod === p.sucCod; });
+    csv += '"'+(p.fecha||'')+'","'+(p.solicit||'')+'","'+(suc?suc.suc:(p.sucCod||''))+'","'+(ins?ins.cod:(p.sku||''))+'","'+(ins?ins.nombre:(p.desc||''))+'",'+p.cant+',"'+(p.motivo||'')+'","'+p.estado+'"\n';
+  });
+  dlCSV(csv, 'pedidos_extraordinarios.csv');
+}
+
+function imprimirPedidosExt() {
+  var aprob = (S.pedExt||[]).filter(function(p){ return p.estado==='aprobado'; });
+  var rows = aprob.map(function(p){
+    var ins = INSUMOS.find(function(i){ return i.id === p.insId; });
+    var suc = SUCURSALES.find(function(s){ return s.cod === p.sucCod; });
+    return [(p.fecha||'--'),(p.solicit||'--'),(suc?suc.suc:(p.sucCod||'--')),(ins?ins.cod:(p.sku||'--')),(ins?ins.nombre:(p.desc||'--')),String(p.cant),(p.motivo||'--'),'Aprobado'];
+  });
+  abrirImpresion('Pedidos Extraordinarios — Aprobados','Solo solicitudes aprobadas',[{
+    titulo:'SOLICITUDES APROBADAS',cols:['Fecha','Solicitante','Sucursal','SKU','Descripcion','Cant.','Motivo','Estado'],rows:rows
+  }]);
+}
+
+// Helper: suma de pedidos extraordinarios aprobados por insId
+function getPedExtAprobado(insId) {
+  if (!S.pedExt) return 0;
+  return S.pedExt.reduce(function(a, p) {
+    return a + (p.insId === insId && p.estado === 'aprobado' ? p.cant : 0);
+  }, 0);
+}
+
+// Auto-fill SKU al cambiar insumo en formulario
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.id === 'pext-ins') {
+    var insId = parseInt(e.target.value);
+    var ins = INSUMOS.find(function(i){ return i.id === insId; });
+    var skuEl = document.getElementById('pext-sku');
+    if (skuEl) skuEl.value = ins ? ins.cod : '';
+  }
+});
+
+// ============================================================
+//  LOGIN
+// ============================================================
+var USERS = {
+  'admin':    {pass:'chavez2026',  role:'admin',    name:'Administrador'},
+  'compras':  {pass:'compras2026', role:'editor',   name:'Responsable Compras'},
+  'almacen':  {pass:'almacen2026', role:'editor',   name:'Responsable Almacen'},
+  'gerencia': {pass:'gerencia26',  role:'viewer',   name:'Gerencia'},
+};
+
+function doLogin() {
+  var user = document.getElementById('l-user').value.trim().toLowerCase();
+  var pass = document.getElementById('l-pass').value;
+  var errEl = document.getElementById('l-err');
+  if (!user || !pass) { errEl.textContent = 'Ingresa usuario y contraseña.'; return; }
+  var u = USERS[user];
+  if (!u || u.pass !== pass) {
+    errEl.textContent = 'Usuario o contraseña incorrectos.';
+    document.getElementById('l-pass').value = '';
+    return;
+  }
+  sessionStorage.setItem('gi_user', JSON.stringify({user:user, name:u.name, role:u.role}));
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('login-user-name').textContent = u.name;
+  applyRolePermissions(u.role);
+  errEl.textContent = '';
+  renderInicio();
+}
+
+function doLogout() {
+  sessionStorage.removeItem('gi_user');
+  document.getElementById('l-user').value = '';
+  document.getElementById('l-pass').value = '';
+  document.getElementById('l-err').textContent = '';
+  var ov=document.getElementById('login-overlay'); ov.style.display='flex'; ov.style.alignItems='center'; ov.style.justifyContent='center';
+}
+
+function applyRolePermissions(role) {
+  // Viewers can't edit anything
+  if (role === 'viewer') {
+    document.querySelectorAll('.ed, .fi, .btn-gold, .btn-green, .btn-red').forEach(function(el){
+      el.disabled = true; el.style.opacity = '0.5'; el.style.cursor = 'not-allowed';
+    });
+    document.querySelectorAll('.btn').forEach(function(b){
+      if (b.textContent.indexOf('Guardar')>=0 || b.textContent.indexOf('Completar')>=0 ||
+          b.textContent.indexOf('Ingreso')>=0 || b.textContent.indexOf('Limpiar')>=0)
+        b.style.display='none';
+    });
+  }
+}
+
+function checkSession() {
+  var sess = sessionStorage.getItem('gi_user');
+  if (sess) {
+    try {
+      var u = JSON.parse(sess);
+      document.getElementById('login-overlay').style.display = 'none';
+      document.getElementById('login-user-name').textContent = u.name;
+      applyRolePermissions(u.role);
+      return true;
+    } catch(e) {}
+  }
+  return false;
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  APLICAR CANTIDAD MASIVA EN DESPACHO
+// ════════════════════════════════════════════════════════════
+function initBulkInsumoSelect() {
+  var sel = document.getElementById('bulk-ins');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Selecciona insumo --</option>' +
+    INSUMOS.map(function(i){ return '<option value="'+i.id+'">'+i.nombre+'</option>'; }).join('');
+}
+
+function aplicarCantidadMasiva() {
+  var insId = parseInt(document.getElementById('bulk-ins').value);
+  var cant  = parseInt(document.getElementById('bulk-cant').value) || 0;
+  if (!insId) { toast('Selecciona un insumo'); return; }
+  if (cant < 0) { toast('La cantidad debe ser 0 o mayor'); return; }
+
+  // Apply only to currently VISIBLE (filtered) sucursales
+  var reg  = document.getElementById('d-fil-reg').value;
+  var sup  = document.getElementById('d-fil-sup').value;
+  var srch = document.getElementById('d-search').value.toLowerCase();
+
+  var sucFil = SUCURSALES.filter(function(s) {
+    return (!reg||s.reg===reg) && (!sup||s.sup===sup) &&
+      (!srch||s.suc.toLowerCase().indexOf(srch)>=0||s.cod.indexOf(srch)>=0);
+  });
+
+  sucFil.forEach(function(s) {
+    setDist(s.cod, insId, cant, getDistSku(s.cod, insId));
+  });
+  saveState();
+  renderDespacho();
+  document.getElementById('bulk-status').textContent = cant + ' aplicado a ' + sucFil.length + ' sucursales';
+  toast('Cantidad aplicada a ' + sucFil.length + ' sucursales');
+}
+
+// ════════════════════════════════════════════════════════════
+//  DESPACHO OFICINA CENTRAL
+// ════════════════════════════════════════════════════════════
+function dkeyOfic(area, mat) { return 'ofic|' + area + '|' + mat.substring(0,30); }
+function getDespOfic(area, mat) { return S.despOfic ? (S.despOfic[dkeyOfic(area,mat)]||0) : 0; }
+function setDespOfic(area, mat, val) {
+  if (!S.despOfic) S.despOfic = {};
+  S.despOfic[dkeyOfic(area,mat)] = val;
+  saveState();
+}
+
+function renderDespOficina() {
+  if (!S.despOfic) S.despOfic = {};
+  var areas = Object.keys(OFICINA);
+  var rows = '', total=0, ri=0;
+  areas.forEach(function(area) {
+    var areaHeader = true;
+    OFICINA[area].forEach(function(item) {
+      var master = normalizeMaterial(item.m);
+      var cod = master ? master.cod : '--';
+      var nombre = master ? master.nombre : item.m;
+      var dot = item.q;
+      var dist = getDespOfic(area, item.m);
+      var pend = Math.max(0, dot-dist);
+      var stato = dist===0 ? 'pendiente' : dist>=dot ? 'completo' : 'parcial';
+      var stBadge = stato==='completo'?'<span class="badge b-green">Completo</span>':
+        stato==='parcial'?'<span class="badge b-orange">Parcial</span>':
+        '<span class="badge b-red">Pendiente</span>';
+      if (areaHeader) {
+        rows += '<tr style="background:#ddeeff"><td colspan="8" style="padding:7px 13px;font-weight:700;color:var(--navy);font-size:11.5px">'+area+'</td></tr>';
+        areaHeader = false;
+      }
+      rows += '<tr class="'+(ri%2?'row-alt':'')+'">' +
+        '<td style="font-size:10.5px;color:var(--gray-text)">'+area+'</td>' +
+        '<td style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">'+cod+'</td>' +
+        '<td style="font-size:11.5px">'+nombre+'</td>' +
+        '<td style="text-align:center">'+item.u+'</td>' +
+        '<td style="text-align:center;font-family:var(--ffm);font-weight:600">'+dot+'</td>' +
+        '<td style="text-align:center;font-family:var(--ffm);font-weight:600">'+dot+'</td>' +
+        '<td style="text-align:center"><input class="ed'+(stato==='completo'?' desp-done':'')+'" type="number" min="0" value="'+dist+'" data-area="'+encodeURIComponent(area)+'" data-mat="'+encodeURIComponent(item.m.substring(0,25))+'" data-dot="'+dot+'" onchange="onDespOficInput(this)"></td>' +
+        '<td style="text-align:center;font-family:var(--ffm);'+(pend>0?'color:var(--red);font-weight:600':'')+'">'+(pend>0?pend:'--')+'</td>' +
+        '<td style="text-align:center">'+stBadge+'</td></tr>';
+      ri++; total++;
+    });
+  });
+  document.getElementById('desp-ofic-tbody').innerHTML = rows;
+  document.getElementById('desp-ofic-count').textContent = total + ' items · ' + areas.length + ' areas';
+}
+
+function onDespOficInput(input) {
+  var area   = input.getAttribute('data-area');
+  var matKey = input.getAttribute('data-mat');
+  var dot    = parseInt(input.getAttribute('data-dot'))||0;
+  onDespOficChange(area, matKey, input, dot);
+}
+function onDespOficChange(area, matKey, input, dot) {
+  var val = Math.max(0, parseInt(input.value)||0);
+  input.value = val;
+  if (!S.despOfic) S.despOfic = {};
+  // Find full mat name
+  var fullMat = matKey;
+  if (OFICINA[area]) {
+    OFICINA[area].forEach(function(it){ if(it.m.substring(0,20).replace(/'/g,'')=== matKey) fullMat=it.m; });
+  }
+  S.despOfic[dkeyOfic(area,fullMat)] = val;
+  saveState();
+  var tr = input.closest('tr');
+  var pend = Math.max(0,dot-val);
+  tr.children[6].textContent = pend>0?pend:'--';
+  tr.children[6].style.color = pend>0?'var(--red)':'';
+  var stato = val===0?'pendiente':val>=dot?'completo':'parcial';
+  input.className='ed'+(stato==='completo'?' desp-done':'');
+  tr.children[7].innerHTML=stato==='completo'?'<span class="badge b-green">Completo</span>':
+    stato==='parcial'?'<span class="badge b-orange">Parcial</span>':
+    '<span class="badge b-red">Pendiente</span>';
+  toast('Guardado');
+}
+
+function completarTodoOficina() {
+  if (!confirm('Marcar todos los items de oficina como distribuidos?')) return;
+  if (!S.despOfic) S.despOfic = {};
+  Object.keys(OFICINA).forEach(function(area){
+    OFICINA[area].forEach(function(item){ S.despOfic[dkeyOfic(area,item.m)] = item.q; });
+  });
+  saveState(); renderDespOficina(); toast('Oficina marcada completa');
+}
+
+function exportDespOficina() {
+  var csv = 'Area,Cod,Material,UM,Dotacion,Distribuido,Pendiente,Estado\n';
+  Object.keys(OFICINA).forEach(function(area){
+    OFICINA[area].forEach(function(item){
+      var master = normalizeMaterial(item.m);
+      var cod = master?master.cod:'--';
+      var dist = getDespOfic(area, item.m);
+      var pend = Math.max(0,item.q-dist);
+      var stato = dist===0?'Pendiente':dist>=item.q?'Completo':'Parcial';
+      csv+='"'+area+'","'+cod+'","'+(master?master.nombre:item.m)+'","'+item.u+'",'+item.q+','+dist+','+pend+',"'+stato+'"\n';
+    });
+  });
+  dlCSV(csv,'despacho_oficina.csv');
+}
+
+// ════════════════════════════════════════════════════════════
+//  IMPRIMIR PLAN CONSOLIDADO
+// ════════════════════════════════════════════════════════════
+function imprimirPlanConsolidado() {
+  var meses = PERIODO_SUC;
+  var fecha = new Date().toLocaleDateString('es-BO',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var label = meses===1?'Mensual':meses===3?'Trimestral':'Semestral';
+
+  // Build print content
+  var rows_suc = '';
+  INSUMOS.forEach(function(ins,ri){
+    var st=getStock(ins.id), dotPer=dotTotal(ins)*meses;
+    var aComp=Math.max(0,dotPer-st);
+    if(aComp===0) return;
+    rows_suc+='<tr style="'+(ri%2?'background:#f5f7fa':'')+'">' +
+      '<td>'+ins.cod+'</td><td>'+ins.nombre+'</td><td>'+ins.um+'</td>' +
+      '<td>'+fmt(dotPer)+'</td><td>'+fmt(st)+'</td>' +
+      '<td style="color:#b5292a;font-weight:700">'+fmt(aComp)+'</td></tr>';
+  });
+
+  var rows_cedi = '';
+  CEDI_INSUMOS.forEach(function(ci,ri){
+    var dotPer=(S.cediStock[ci.id]!==undefined?S.cediStock[ci.id]:ci.q)*meses;
+    var st=ci.cod?(S.stockSku[ci.cod]!==undefined?S.stockSku[ci.cod]:0):0;
+    var aComp=Math.max(0,dotPer-st);
+    if(aComp===0) return;
+    rows_cedi+='<tr style="'+(ri%2?'background:#f5f7fa':'')+'">' +
+      '<td>'+(ci.cod||'--')+'</td><td>'+ci.nombre+'</td><td>'+ci.um+'</td>' +
+      '<td>'+fmt(dotPer)+'</td><td>'+fmt(st)+'</td>' +
+      '<td style="color:#b5292a;font-weight:700">'+fmt(aComp)+'</td></tr>';
+  });
+
+  var rows_ofic = '';
+  var ri2=0;
+  Object.keys(OFICINA).forEach(function(area){
+    OFICINA[area].forEach(function(item){
+      var master=normalizeMaterial(item.m);
+      var cod=master?master.cod:'--';
+      var nombre=master?master.nombre:item.m;
+      rows_ofic+='<tr style="'+(ri2%2?'background:#f5f7fa':'')+'">' +
+        '<td>'+area+'</td><td>'+cod+'</td><td>'+nombre+'</td><td>'+item.u+'</td>' +
+        '<td>'+fmt(item.q*meses)+'</td><td>--</td>' +
+        '<td style="color:#b5292a;font-weight:700">'+fmt(item.q*meses)+'</td></tr>';
+      ri2++;
+    });
+  });
+
+  var TH = 'style="background:#0c2340;color:#fff;padding:8px 10px;text-align:left;font-size:11px"';
+  var SEC = 'style="background:#0c2340;color:#fff;font-weight:700;padding:8px 12px;font-size:12px"';
+
+  var win = window.open('','_blank','width=900,height=700');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+    '<title>Plan de Compras - '+fecha+'</title>' +
+    '<style>body{font-family:Arial,sans-serif;font-size:12px;margin:20px}' +
+    'h1{color:#0c2340;font-size:18px;margin-bottom:4px}' +
+    '.sub{color:#666;font-size:11px;margin-bottom:20px}' +
+    'table{width:100%;border-collapse:collapse;margin-bottom:24px}' +
+    'td{padding:6px 10px;border-bottom:1px solid #e2e8f0}' +
+    '@media print{body{margin:10px}.no-print{display:none}}' +
+    '</style></head><body>' +
+    '<div class="no-print" style="margin-bottom:16px">' +
+    '<button onclick="window.print()" style="padding:8px 20px;background:#0c2340;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px">🖨 Imprimir</button></div>' +
+    '<h1>📋 Plan de Compras Consolidado — '+label+'</h1>' +
+    '<div class="sub">Grupo Chávez · Farmacias Chávez · Generado el '+fecha+' · Período: '+meses+' mes(es)</div>' +
+
+    '<table><thead><tr><td colspan="7" '+SEC+'>🚚 SUCURSALES ORIENTE — Solo ítems a comprar</td></tr>' +
+    '<tr><th '+TH+'>Cód.</th><th '+TH+'>Insumo</th><th '+TH+'>U.M.</th>' +
+    '<th '+TH+'>Necesario</th><th '+TH+'>Stock</th><th '+TH+'>A COMPRAR</th></tr></thead>' +
+    '<tbody>'+(rows_suc||'<tr><td colspan="6" style="color:green;text-align:center">Sin items críticos</td></tr>')+'</tbody></table>' +
+
+    '<table><thead><tr><td colspan="7" '+SEC+'>🏭 CEDIS — Solo ítems a comprar</td></tr>' +
+    '<tr><th '+TH+'>Cód.</th><th '+TH+'>Insumo</th><th '+TH+'>U.M.</th>' +
+    '<th '+TH+'>Necesario</th><th '+TH+'>Stock</th><th '+TH+'>A COMPRAR</th></tr></thead>' +
+    '<tbody>'+(rows_cedi||'<tr><td colspan="6" style="color:green;text-align:center">Sin items críticos</td></tr>')+'</tbody></table>' +
+
+    '<table><thead><tr><td colspan="7" '+SEC+'>🏢 OFICINA CENTRAL — Dotación completa</td></tr>' +
+    '<tr><th '+TH+'>Área</th><th '+TH+'>Cód.</th><th '+TH+'>Material</th><th '+TH+'>U.M.</th>' +
+    '<th '+TH+'>Cantidad</th><th '+TH+'>Stock</th><th '+TH+'>A COMPRAR</th></tr></thead>' +
+    '<tbody>'+rows_ofic+'</tbody></table>' +
+    '</body></html>');
+  win.document.close();
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  CENTRO MEDICO CAÑOTO SCZ
+// ════════════════════════════════════════════════════════════
+function getCMDot(sku) { return S.cmDot && S.cmDot[sku]!==undefined ? S.cmDot[sku] : (CENTRO_MEDICO.items.find(function(i){return i.sku===sku;})||{q:0}).q; }
+function getCMDist(sku){ return S.cmDist && S.cmDist[sku]!==undefined ? S.cmDist[sku] : 0; }
+
+function renderCentroMedico() {
+  if (!S.cmDot)  S.cmDot  = {};
+  if (!S.cmDist) S.cmDist = {};
+  var rows = '';
+  CENTRO_MEDICO.items.forEach(function(item, ri) {
+    var dot  = getCMDot(item.sku);
+    var dist = getCMDist(item.sku);
+    var pend = Math.max(0, dot-dist);
+    var stato = dist===0 ? 'pendiente' : dist>=dot ? 'completo' : 'parcial';
+    var stBadge = stato==='completo' ? '<span class="badge b-green">Completo</span>' :
+      stato==='parcial' ? '<span class="badge b-orange">Parcial</span>' :
+      '<span class="badge b-red">Pendiente</span>';
+    rows += '<tr class="'+(ri%2?'row-alt':'')+'">' +
+      '<td style="font-family:var(--ffm);font-size:11px;font-weight:600;color:var(--navy-2)">'+item.sku+'</td>' +
+      '<td style="font-size:11.5px">'+item.nombre+'</td>' +
+      '<td style="text-align:center">'+item.um+'</td>' +
+      '<td style="text-align:center"><input class="ed" type="number" min="0" value="'+dot+'" data-sku="'+item.sku+'" onchange="updateCMDot(this)"></td>' +
+      '<td style="text-align:center"><input class="ed'+(stato==='completo'?' desp-done':'')+'" type="number" min="0" value="'+dist+'" data-sku="'+item.sku+'" data-dot="'+dot+'" onchange="updateCMDist(this)"></td>' +
+      '<td style="text-align:center;font-family:var(--ffm);'+(pend>0?'color:var(--red);font-weight:600':'')+'">'+( pend>0?pend:'--')+'</td>' +
+      '<td style="text-align:center">'+stBadge+'</td>' +
+    '</tr>';
+  });
+  document.getElementById('cm-tbody').innerHTML = rows;
+}
+
+function updateCMDot(input) {
+  if (!S.cmDot) S.cmDot = {};
+  S.cmDot[input.getAttribute('data-sku')] = Math.max(0, parseInt(input.value)||0);
+  saveState(); renderCentroMedico();
+}
+function updateCMDist(input) {
+  if (!S.cmDist) S.cmDist = {};
+  var sku = input.getAttribute('data-sku');
+  var val = Math.max(0, parseInt(input.value)||0);
+  S.cmDist[sku] = val;
+  saveState();
+  var tr = input.closest('tr');
+  var dot = parseInt(input.getAttribute('data-dot'))||0;
+  var pend = Math.max(0, dot-val);
+  tr.children[5].textContent = pend>0?pend:'--';
+  tr.children[5].style.color = pend>0?'var(--red)':'';
+  var stato = val===0?'pendiente':val>=dot?'completo':'parcial';
+  input.className = 'ed'+(stato==='completo'?' desp-done':'');
+  tr.children[6].innerHTML = stato==='completo'?'<span class="badge b-green">Completo</span>':
+    stato==='parcial'?'<span class="badge b-orange">Parcial</span>':
+    '<span class="badge b-red">Pendiente</span>';
+  toast('Guardado');
+}
+function completarCentroMedico() {
+  if (!S.cmDist) S.cmDist = {};
+  CENTRO_MEDICO.items.forEach(function(i){ S.cmDist[i.sku] = getCMDot(i.sku); });
+  saveState(); renderCentroMedico(); toast('Centro Medico marcado completo');
+}
+var _cmTrasRows = [];
+function generarTraspasoCentroMedico() {
+  _cmTrasRows = [];
+  CENTRO_MEDICO.items.forEach(function(item) {
+    var dist = getCMDist(item.sku);
+    if (dist > 0) {
+      _cmTrasRows.push({origen:5489, destino:parseInt(CENTRO_MEDICO.cod), sku:item.sku, nombre:item.nombre, cantidad:dist, prioridad:100});
+    }
+  });
+  var wrap = document.getElementById('cm-tras-wrap');
+  wrap.style.display = 'block';
+  document.getElementById('cm-tras-tbody').innerHTML = _cmTrasRows.map(function(r,ri){
+    return '<tr class="'+(ri%2?'row-alt':'')+'"><td style="font-family:var(--ffm);font-weight:700">'+r.origen+'</td>' +
+      '<td style="font-family:var(--ffm);font-weight:700;color:var(--blue)">'+r.destino+'</td>' +
+      '<td style="font-family:var(--ffm)">'+r.sku+'</td>' +
+      '<td style="font-size:11px">'+r.nombre+'</td>' +
+      '<td style="text-align:center;font-family:var(--ffm);font-weight:700">'+r.cantidad+'</td>' +
+      '<td style="text-align:center">100</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray-text);padding:20px">Sin distribuciones registradas aun</td></tr>';
+  toast('Traspaso generado');
+}
+function descargarTraspasoCM() {
+  var csv = 'ORIGEN,DESTINO,SKU,CANTIDAD,PRIORIDAD\n';
+  _cmTrasRows.forEach(function(r){ csv += r.origen+','+r.destino+','+r.sku+','+r.cantidad+','+r.prioridad+'\n'; });
+  dlCSV(csv, 'TRASPASO_CENTRO_MEDICO_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.csv');
+}
+
+
+// ════════════════════════════════════════════════════════════
+//  IMPRESIÓN
+// ════════════════════════════════════════════════════════════
+function abrirImpresion(titulo, subtitulo, tablas) {
+  var fecha = new Date().toLocaleDateString('es-BO',{day:'2-digit',month:'2-digit',year:'numeric'});
+  var css = [
+    '*{box-sizing:border-box}',
+    'body{font-family:Arial,sans-serif;margin:20px;color:#1a2332;font-size:12px}',
+    'h1{color:#0c2340;font-size:16px;margin-bottom:2px}',
+    '.meta{color:#666;font-size:11px;margin-bottom:16px}',
+    'table{width:100%;border-collapse:collapse;margin-bottom:20px;page-break-inside:avoid}',
+    'th{background:#0c2340;color:#fff;padding:6px 9px;text-align:left;font-size:10.5px;border:1px solid #1a3a6a}',
+    'td{padding:5px 9px;border:1px solid #e2e8f0}',
+    'tr:nth-child(even){background:#f5f7fa}',
+    '.sec-hdr{background:#0c2340;color:#fff;font-weight:700;padding:7px 12px;font-size:12px}',
+    '.footer-row td{background:#e8ecf2;font-weight:700}',
+    '.sign{display:flex;gap:50px;margin-top:36px;page-break-inside:avoid}',
+    '.sign-box{flex:1;text-align:center}',
+    '.sign-line{border-top:1.5px solid #333;margin:44px 0 5px}',
+    '.sign-lbl{font-size:10px;color:#555}',
+    '.btn-bar{margin-bottom:14px}',
+    '.btn-bar button{padding:7px 18px;margin-right:8px;border:none;border-radius:5px;cursor:pointer;font-size:12px}',
+    '.btn-print{background:#0c2340;color:#fff}',
+    '.btn-close{background:#e2e8f0}',
+    '@media print{.btn-bar{display:none}body{margin:8px}}'
+  ].join('');
+
+  var body = '<div class="btn-bar">' +
+    '<button class="btn-print" onclick="window.print()">Imprimir</button>' +
+    '<button class="btn-close" onclick="window.close()">Cerrar</button></div>' +
+    '<h1>' + titulo + '</h1>' +
+    '<div class="meta">' + subtitulo + ' &nbsp;|&nbsp; ' + fecha + '</div>';
+
+  tablas.forEach(function(t) {
+    body += '<table>';
+    if (t.titulo) body += '<tr><td colspan="' + t.cols.length + '" class="sec-hdr">' + t.titulo + '</td></tr>';
+    body += '<tr>' + t.cols.map(function(c){return '<th>'+c+'</th>';}).join('') + '</tr>';
+    t.rows.forEach(function(row){
+      body += '<tr>' + row.map(function(c){return '<td>'+(c||'')+'</td>';}).join('') + '</tr>';
+    });
+    if (t.foot) body += '<tr class="footer-row">' + t.foot.map(function(c){return '<td>'+(c||'')+'</td>';}).join('') + '</tr>';
+    body += '</table>';
+  });
+
+  body += '<div class="sign">' +
+    '<div class="sign-box"><div class="sign-line"></div><div class="sign-lbl">Responsable Almacén</div></div>' +
+    '<div class="sign-box"><div class="sign-line"></div><div class="sign-lbl">Responsable Compras</div></div>' +
+    '<div class="sign-box"><div class="sign-line"></div><div class="sign-lbl">Recibí Conforme</div></div>' +
+    '</div>';
+
+  var w = window.open('', '_blank', 'width=1000,height=750');
+  w.document.open();
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + titulo + '</title><style>' + css + '</style></head><body>' + body + '</body></html>');
+  w.document.close();
+}
+
+function imprimirDotacionSucursales() {
+  var reg  = (document.getElementById('dot-fil-reg')||{value:''}).value;
+  var sup  = (document.getElementById('dot-fil-sup')||{value:''}).value;
+  var srch = ((document.getElementById('dot-search')||{value:''}).value||'').toLowerCase();
+  var filtered = SUCURSALES.filter(function(s){
+    return (!reg||s.reg===reg)&&(!sup||s.sup===sup)&&
+      (!srch||s.suc.toLowerCase().indexOf(srch)>=0);
+  });
+  var regs = []; filtered.forEach(function(s){if(regs.indexOf(s.reg)<0)regs.push(s.reg);});
+  var tablas = regs.map(function(r){
+    var ss = filtered.filter(function(s){return s.reg===r;});
+    var cols = ['Cod','Sucursal'].concat(INSUMOS.map(function(i){return i.nombre.split(' ').slice(0,2).join(' ');})).concat(['TOTAL']);
+    var rows = ss.map(function(s){
+      return [s.cod,s.suc].concat(INSUMOS.map(function(i){var q=i[dk];return q>0?String(q):'--';})).concat([String(INSUMOS.reduce(function(a,i){return a+i[dk];},0))]);
+    });
+    return {titulo:r.toUpperCase()+' ('+ss.length+' sucursales)', cols:cols, rows:rows};
+  });
+  abrirImpresion('Dotación Mensual — Sucursales Regional Oriente','Grupo Chávez · Farmacias Chávez · '+filtered.length+' sucursales',tablas);
+}
+
+function imprimirDotacionOficina() {
+  var areas = Object.keys(OFICINA);
+  var tablas = areas.map(function(area){
+    var items = OFICINA[area];
+    var hasP = items.some(function(it){return it.piso;});
+    var cols = ['Cód.','Material','U.M.','Cantidad/Mes'];
+    if (hasP) cols.push('Piso/Ubicación');
+    var rows = items.map(function(it){
+      var master = normalizeMaterial(it.m);
+      var cod = it.cod||(master?master.cod:'--');
+      var row = [cod, it.m, it.u, String(it.q)];
+      if (hasP) row.push(it.piso||'');
+      return row;
+    });
+    var tot = items.reduce(function(a,it){return a+it.q;},0);
+    var foot = ['','TOTAL '+items.length+' ítems','',String(tot)];
+    if (hasP) foot.push('');
+    return {titulo:area.toUpperCase(), cols:cols, rows:rows, foot:foot};
+  });
+  abrirImpresion('Dotación Mensual — Oficina Central + Limpieza','Grupo Chávez · '+areas.length+' áreas',tablas);
+}
+
+function imprimirDespacho() {
+  var reg = (document.getElementById('d-fil-reg')||{value:''}).value;
+  var sup = (document.getElementById('d-fil-sup')||{value:''}).value;
+  var sucFil = SUCURSALES.filter(function(s){return (!reg||s.reg===reg)&&(!sup||s.sup===sup);});
+  var tablas = sucFil.map(function(s){
+
+    var cols = ['SKU','Insumo','U.M.','Dotación','Distribuido','Pendiente','Firma'];
+    var rows = INSUMOS.filter(function(i){return i[dk]>0;}).map(function(ins){
+      var dot=ins[dk], dist=getDistCant(s.cod,ins.id), pend=Math.max(0,dot-dist);
+      return [ins.cod,ins.nombre,ins.um,String(dot),dist>0?String(dist):'',pend>0?String(pend):'OK',''];
+    });
+    return {titulo:s.suc+' — '+s.reg, cols:cols, rows:rows};
+  });
+  abrirImpresion('Control de Despacho — Sucursales Regional Oriente',reg||'Todas las regionales',tablas);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('top-date').textContent =
+    new Date().toLocaleDateString('es-BO', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+  document.body.addEventListener('change', function(e) {
+    if (e.target.classList.contains('sku-sel')) {
+      var sucCod = e.target.getAttribute('data-suc');
+      var insId  = parseInt(e.target.getAttribute('data-ins'));
+      onSkuChange(sucCod, insId, e.target.value);
+    }
+  });
+  iniciarCargaSheets();
+});
+
+// ============================================================
+//  CARGA DESDE GOOGLE SHEETS — DATOS MAESTROS
+// ============================================================
+var SHEET_BASE = 'https://docs.google.com/spreadsheets/d/1c_399CP5tbjExylSH8BsEASIcWSK3XHXiwRu9QW_mcc';
+var GIDS = {
+  planSucursal:   '0',
+  planOficina:    '610345905',
+  inventario:     '1504860086',
+  listaSucursales:'2143064505',
+  listaInsumos:   '802209175',
+  solicitudes:    '884489091'
+};
+
+function fetchSheet(gid) {
+  var url = APPS_SCRIPT_URL + '?accion=getData&gid=' + gid;
+  return fetch(url, { credentials: 'include', redirect: 'follow' })
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (!res.ok) throw new Error('Error en hoja gid=' + gid + ': ' + (res.msg || res.error || 'desconocido'));
+      return res.data; // array de arrays [[headers...],[row1...],...]
+    });
+}
+
+function setLoadingProgress(pct, msg) {
+  var bar = document.getElementById('loading-bar');
+  var txt = document.getElementById('loading-msg');
+  if (bar) bar.style.width = pct + '%';
+  if (txt) txt.textContent = msg;
+}
+
+function setLoadingError(msg) {
+  var errEl = document.getElementById('loading-error');
+  var btn   = document.getElementById('loading-retry');
+  if (errEl) { errEl.textContent = msg; errEl.style.display = ''; }
+  if (btn)   btn.style.display = '';
+}
+
+function hideLoadingScreen() {
+  var el = document.getElementById('loading-screen');
+  if (el) el.style.display = 'none';
+}
+
+function iniciarCargaSheets() {
+  var errEl = document.getElementById('loading-error');
+  var btn   = document.getElementById('loading-retry');
+  if (errEl) errEl.style.display = 'none';
+  if (btn)   btn.style.display   = 'none';
+
+  setLoadingProgress(5, 'Conectando con Google Sheets...');
+
+  Promise.all([
+    fetchSheet(GIDS.listaSucursales),
+    fetchSheet(GIDS.listaInsumos),
+    fetchSheet(GIDS.planSucursal),
+    fetchSheet(GIDS.inventario),
+    fetchSheet(GIDS.planOficina),
+    fetchSheet(GIDS.solicitudes)
+  ])
+  .then(function(results) {
+    setLoadingProgress(40, 'Procesando sucursales...');
+    procesarSucursalesRows(results[0]);
+
+    setLoadingProgress(55, 'Procesando insumos...');
+    procesarInsumosRows(results[1]);
+
+    setLoadingProgress(70, 'Procesando dotación...');
+    procesarPlanSucursalRows(results[2]);
+
+    setLoadingProgress(80, 'Procesando inventario...');
+    procesarInventarioRows(results[3]);
+
+    setLoadingProgress(88, 'Procesando oficina...');
+    procesarPlanOficinaRows(results[4]);
+
+    setLoadingProgress(94, 'Procesando solicitudes...');
+    procesarSolicitudesRows(results[5]);
+
+    setLoadingProgress(100, '¡Listo!');
+
+    initState();
+    setTimeout(function() {
+      hideLoadingScreen();
+      initDotFiltros();
+      initDespFiltros();
+      renderInicio();
+    }, 300);
+  })
+  .catch(function(err) {
+    setLoadingProgress(0, 'Error al cargar');
+    setLoadingError('No se pudo cargar desde Sheets: ' + err.message);
+  });
+}
+
+// ── Parsear CSV ──────────────────────────────────────────────
+// ── Helper: normaliza headers de arrays del proxy ───────────
+function getHeadersArr(rows) {
+  var h = {};
+  (rows[0] || []).forEach(function(col, i) {
+    h[String(col || '').toLowerCase().trim()] = i;
+  });
+  return h;
+}
+
+function cleanVal(v) { return String(v === null || v === undefined ? '' : v).replace(/\.0$/, '').trim(); }
+
+// ── Procesar Lista Sucursales ────────────────────────────────
+function procesarSucursalesRows(rows) {
+  if (!rows || rows.length < 2) return;
+  var h = getHeadersArr(rows);
+  var iPdv = h['punto de venta'] !== undefined ? h['punto de venta'] : 0;
+  var iCod = h['cod. sucursal']  !== undefined ? h['cod. sucursal']  : 1;
+  var iReg = h['regional']       !== undefined ? h['regional']       : -1;
+  var iSup = h['supervisora']    !== undefined ? h['supervisora']    : -1;
+  SUCURSALES = [];
+  rows.slice(1).forEach(function(r) {
+    var cod = cleanVal(r[iCod]);
+    var suc = cleanVal(r[iPdv]);
+    if (!cod || !suc) return;
+    SUCURSALES.push({
+      cod: cod, suc: suc,
+      reg: iReg >= 0 ? cleanVal(r[iReg]) : '',
+      sup: iSup >= 0 ? cleanVal(r[iSup]) : ''
+    });
+  });
+}
+
+// ── Procesar Lista Insumos ───────────────────────────────────
+function procesarInsumosRows(rows) {
+  if (!rows || rows.length < 2) return;
+  var h = getHeadersArr(rows);
+  var iCod    = h['cod. interno'] !== undefined ? h['cod. interno'] : 0;
+  var iNombre = h['insumo']       !== undefined ? h['insumo']       : 1;
+  var iUm     = h['u.m.']         !== undefined ? h['u.m.']         : 2;
+  INSUMOS = [];
+  rows.slice(1).forEach(function(r, idx) {
+    var cod    = cleanVal(r[iCod]);
+    var nombre = cleanVal(r[iNombre]);
+    var um     = cleanVal(r[iUm]);
+    if (!cod || !nombre) return;
+    INSUMOS.push({ id: idx + 1, cod: cod, nombre: nombre, um: um, stock0: 0, dotBySuc: {} });
+  });
+}
+
+// ── Procesar Plan. Sucursal ──────────────────────────────────
+function procesarPlanSucursalRows(rows) {
+  if (!rows || rows.length < 2) return;
+  var h = getHeadersArr(rows);
+  var iCodIns = h['cod. insumo']   !== undefined ? h['cod. insumo']   : 3;
+  var iCodSuc = h['cod. sucursal'] !== undefined ? h['cod. sucursal'] : 5;
+  var iCant   = h['cantidad']      !== undefined ? h['cantidad']      : 2;
+  INSUMOS.forEach(function(i) { i.dotBySuc = {}; });
+  rows.slice(1).forEach(function(r) {
+    var codIns = cleanVal(r[iCodIns]);
+    var codSuc = cleanVal(r[iCodSuc]);
+    var cant   = parseFloat(r[iCant]) || 0;
+    if (!codIns || !codSuc || cant <= 0) return;
+    var ins = INSUMOS.find(function(i) { return i.cod === codIns; });
+    if (ins) ins.dotBySuc[codSuc] = (ins.dotBySuc[codSuc] || 0) + Math.round(cant);
+  });
+}
+
+// ── Procesar Inventario ──────────────────────────────────────
+function procesarInventarioRows(rows) {
+  if (!rows || rows.length < 2) return;
+  var h = getHeadersArr(rows);
+  var iCod    = h['cod. insumo']  !== undefined ? h['cod. insumo']  : 0;
+  var iNombre = h['nombre']       !== undefined ? h['nombre']       : 1;
+  var iUm     = h['u.m.']         !== undefined ? h['u.m.']         : 2;
+  var iStock  = h['stock inicial']!== undefined ? h['stock inicial']: 3;
+  INVENTARIO_COMPLETO = [];
+  INSUMO_VARIANTS = {};
+  rows.slice(1).forEach(function(r) {
+    var sku    = cleanVal(r[iCod]);
+    var nombre = cleanVal(r[iNombre]);
+    var um     = cleanVal(r[iUm]);
+    var stock  = parseFloat(r[iStock]) || 0;
+    if (!sku || !nombre) return;
+    INVENTARIO_COMPLETO.push({ sku: sku, nombre: nombre, um: um, stock: Math.round(stock) });
+    var ins = INSUMOS.find(function(i) { return i.cod === sku; });
+    if (ins) {
+      ins.stock0 = Math.round(stock);
+      if (!INSUMO_VARIANTS[ins.id]) INSUMO_VARIANTS[ins.id] = [];
+      INSUMO_VARIANTS[ins.id].push({ sku: sku, label: sku + ' ' + nombre, stock: Math.round(stock) });
+    }
+  });
+  INSUMOS.forEach(function(ins) {
+    var inv = INVENTARIO_COMPLETO.find(function(v) { return v.sku === ins.cod; });
+    if (inv) ins.stock0 = inv.stock;
+  });
+}
+
+// ── Procesar Plan. Oficina ───────────────────────────────────
+function procesarPlanOficinaRows(rows) {
+  if (!rows || rows.length < 2) return;
+  var h = getHeadersArr(rows);
+  var iDesc = h['descripción de material'] !== undefined ? h['descripción de material'] :
+              h['descripcion de material']  !== undefined ? h['descripcion de material']  : 0;
+  var iCod  = h['cod. insumo']      !== undefined ? h['cod. insumo']      : 1;
+  var iUm   = h['u.m.']             !== undefined ? h['u.m.']             : 2;
+  var iCant = h['cantidad mensual'] !== undefined ? h['cantidad mensual'] : 3;
+  var iArea = h['área']             !== undefined ? h['área']             :
+              h['area']             !== undefined ? h['area']             : 5;
+  OFICINA = {};
+  rows.slice(1).forEach(function(r) {
+    var desc = cleanVal(r[iDesc]);
+    var cod  = cleanVal(r[iCod]);
+    var um   = cleanVal(r[iUm]);
+    var cant = parseFloat(r[iCant]) || 0;
+    var area = cleanVal(r[iArea]);
+    if (!desc || !area || cant <= 0) return;
+    if (!OFICINA[area]) OFICINA[area] = [];
+    var item = { m: desc, u: um, q: Math.round(cant) };
+    if (cod) item.cod = cod;
+    OFICINA[area].push(item);
+  });
+}
+
+// ── Procesar SOLICITUDES ─────────────────────────────────────
+function procesarSolicitudesRows(rows) {
+  if (!rows || rows.length < 2) return;
+  var h = getHeadersArr(rows);
+  var iSol  = h['solicitud']   !== undefined ? h['solicitud']   : 0;
+  var iFech = h['fecha']       !== undefined ? h['fecha']       : 1;
+  var iSoli = h['solicitante'] !== undefined ? h['solicitante'] : 2;
+  var iSuc  = h['sucursal']    !== undefined ? h['sucursal']    : 3;
+  var iSku  = h['sku']         !== undefined ? h['sku']         : 4;
+  var iDesc = h['descripcion'] !== undefined ? h['descripcion'] : 5;
+  var iCant = h['cantidad']    !== undefined ? h['cantidad']    : 6;
+  var iMot  = h['motivo']      !== undefined ? h['motivo']      : 7;
+  var iEst  = h['estado']      !== undefined ? h['estado']      : 8;
+  if (!S.pedExt) S.pedExt = [];
+  rows.slice(1).forEach(function(r) {
+    var solId = cleanVal(r[iSol]);
+    if (!solId) return;
+    var sku    = cleanVal(r[iSku]);
+    var estado = cleanVal(r[iEst]).toLowerCase();
+    if (estado !== 'aprobado' && estado !== 'rechazado') estado = 'pendiente';
+    var cant   = parseFloat(r[iCant]) || 0;
+    // Fecha: viene como Date object o string desde Apps Script
+    var fechaRaw = r[iFech];
+    var fecha;
+    if (fechaRaw instanceof Date || (typeof fechaRaw === 'object' && fechaRaw !== null)) {
+      try { fecha = new Date(fechaRaw).toISOString().split('T')[0]; } catch(e) { fecha = String(fechaRaw); }
+    } else {
+      fecha = String(fechaRaw || '').trim();
+      if (/^\d{5}$/.test(fecha)) {
+        fecha = new Date((parseInt(fecha) - 25569) * 86400000).toISOString().split('T')[0];
+      }
+    }
+    var solit  = cleanVal(r[iSoli]);
+    var sucNom = cleanVal(r[iSuc]);
+    var desc   = cleanVal(r[iDesc]);
+    var ins    = INSUMOS.find(function(i) { return i.cod === sku; });
+    var insId  = ins ? ins.id : 0;
+    var sucCod = '';
+    SUCURSALES.forEach(function(s) {
+      if (sucNom.indexOf(s.cod) >= 0 || s.suc.toLowerCase() === sucNom.toLowerCase()) sucCod = s.cod;
+    });
+    var existing = S.pedExt.find(function(p) { return p.solId === solId; });
+    if (existing) {
+      existing.estado = estado; existing.cant = Math.round(cant); existing.motivo = cleanVal(r[iMot]);
+    } else {
+      S.pedExt.push({
+        solId: solId, insId: insId, cant: Math.round(cant),
+        solicit: solit, motivo: cleanVal(r[iMot]), sucCod: sucCod, sucNom: sucNom,
+        fecha: fecha, sku: sku, desc: desc || (ins ? ins.nombre : ''),
+        estado: estado, fromSheets: true
+      });
+    }
+  });
+}
+
+
+</script>
+</body>
+</html>
