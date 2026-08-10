@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Insumos — Prototipo de Ciclo Mensual | Grupo Chávez</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--navy:#0c2340;--navy-2:#163560;--navy-3:#1e4a82;--blue:#2176ae;--blue-lt:#ddeeff;--teal:#0d7680;--gold:#c8962a;--gold-lt:#fdf4e0;--green:#1b7a44;--green-lt:#e4f5ed;--red:#b5292a;--red-lt:#fce8e8;--orange:#c06010;--orange-lt:#fdf0e4;--purple:#5b21b6;--purple-lt:#f1e9fc;--gray-1:#f4f6fa;--gray-2:#e6eaf2;--gray-3:#c8cfe0;--gray-text:#566480;--text:#12192b;--white:#ffffff;--r:9px;--sh:0 1px 10px rgba(12,35,64,.10);--sh-md:0 4px 24px rgba(12,35,64,.16);--ff:'IBM Plex Sans',sans-serif;--ffm:'IBM Plex Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ff);background:#0a1628;color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--navy);border-bottom:2px solid var(--gold);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-icon{width:34px;height:34px;background:var(--gold);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:17px}
+.brand-name{font-size:13px;font-weight:700;color:#fff;line-height:1.2}
+.brand-sub{font-size:10px;color:#7aa8d0;font-weight:400}
+.app{display:flex;flex:1;min-height:0}
+.sidebar{width:220px;background:var(--navy);flex-shrink:0;display:flex;flex-direction:column;position:sticky;top:56px;height:calc(100vh - 56px);overflow-y:auto;border-right:1px solid rgba(255,255,255,.06)}
+.nav-sect{padding:18px 14px 6px;font-size:9px;font-weight:700;color:#3a608a;letter-spacing:1.8px;text-transform:uppercase}
+.nav-btn{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:1px 8px;border-radius:7px;color:#8ab0cc;font-size:12.5px;font-weight:500;cursor:pointer;border:none;background:none;width:calc(100% - 16px);text-align:left;font-family:var(--ff);transition:all .14s}
+.nav-btn:hover{background:rgba(255,255,255,.07);color:#c8dff0}
+.nav-btn.active{background:rgba(33,118,174,.22);color:#6ec6ff;border-left:3px solid var(--gold);padding-left:11px}
+.nav-icon{font-size:15px;width:20px;flex-shrink:0}
+.sidebar-foot{margin-top:auto;padding:12px 14px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:#5a86ac;line-height:1.7}
+.main{flex:1;background:var(--gray-1);overflow-y:auto;min-height:calc(100vh - 56px)}
+.page{display:none;padding:24px}.page.active{display:block}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;gap:14px;flex-wrap:wrap}
+.ph-title{font-size:20px;font-weight:700;color:var(--navy)}
+.ph-sub{font-size:12px;color:var(--gray-text);margin-top:2px}
+.ph-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{padding:7px 16px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;font-family:var(--ff);transition:all .14s;display:inline-flex;align-items:center;gap:6px}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy-2)}
+.btn-gold{background:var(--gold);color:var(--navy)}.btn-gold:hover{background:#b8841e}
+.btn-ghost{background:var(--white);color:var(--navy);border:1.5px solid var(--gray-3)}.btn-ghost:hover{background:var(--gray-2)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:#15643a}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#9a2020}
+.btn-teal{background:var(--teal);color:#fff}.btn-teal:hover{background:#0a5f68}
+.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover{background:#4c1d95}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-sm{padding:5px 11px;font-size:11px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-bottom:22px}
+.kpi{background:var(--white);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);border-top:3px solid var(--gray-3);transition:transform .14s}
+.kpi:hover{transform:translateY(-2px)}
+.kpi.navy{border-color:var(--navy)}.kpi.blue{border-color:var(--blue)}.kpi.green{border-color:var(--green)}.kpi.red{border-color:var(--red)}.kpi.orange{border-color:var(--orange)}.kpi.gold{border-color:var(--gold)}.kpi.teal{border-color:var(--teal)}.kpi.purple{border-color:var(--purple)}
+.kpi-lbl{font-size:9.5px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px}
+.kpi-val{font-size:28px;font-weight:700;color:var(--navy);line-height:1}
+.kpi-val.red{color:var(--red)}.kpi-val.green{color:var(--green)}.kpi-val.orange{color:var(--orange)}
+.kpi-note{font-size:10px;color:var(--gray-text);margin-top:4px}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--gray-2);gap:10px;flex-wrap:wrap}
+.card-hdr-title{font-size:13px;font-weight:700;color:var(--navy)}
+.card-body{padding:16px}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--navy);color:#fff;padding:9px 13px;text-align:left;font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;position:sticky;top:0;z-index:2}
+tbody tr{border-bottom:1px solid var(--gray-2);transition:background .1s}
+tbody tr:hover{background:var(--blue-lt)}
+tbody td{padding:8px 13px;vertical-align:middle}
+tfoot td{background:var(--navy);color:#fff;padding:9px 13px;font-weight:700;font-size:12px}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.b-red{background:var(--red-lt);color:var(--red)}.b-orange{background:var(--orange-lt);color:var(--orange)}.b-green{background:var(--green-lt);color:var(--green)}.b-blue{background:var(--blue-lt);color:var(--blue)}.b-navy{background:#dde6f4;color:var(--navy)}.b-gold{background:var(--gold-lt);color:var(--gold)}.b-purple{background:var(--purple-lt);color:var(--purple)}
+.ed{border:1.5px solid transparent;border-radius:5px;padding:3px 6px;font-family:var(--ffm);font-size:11.5px;text-align:center;width:70px;background:transparent;outline:none;transition:all .14s;cursor:pointer}
+.ed:hover,.ed:focus{border-color:var(--blue);background:var(--blue-lt);cursor:text}
+.ed:disabled{color:var(--gray-text);background:var(--gray-1);cursor:not-allowed}
+.filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fi{padding:6px 11px;border:1.5px solid var(--gray-3);border-radius:7px;font-size:12px;font-family:var(--ff);outline:none;color:var(--text);background:var(--white)}
+.fi:focus{border-color:var(--blue)}
+.fi-search{width:200px}
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-2);margin-bottom:18px;flex-wrap:wrap}
+.tab-btn{padding:9px 18px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--gray-text);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .14s;font-family:var(--ff)}
+.tab-btn:hover{color:var(--navy)}.tab-btn.active{color:var(--navy);border-bottom-color:var(--gold)}
+.alert{padding:10px 16px;border-radius:7px;font-size:12px;font-weight:500;display:flex;gap:9px;align-items:flex-start;margin-bottom:14px}
+.a-blue{background:var(--blue-lt);color:var(--blue);border-left:4px solid var(--blue)}
+.a-red{background:var(--red-lt);color:var(--red);border-left:4px solid var(--red)}
+.a-green{background:var(--green-lt);color:var(--green);border-left:4px solid var(--green)}
+.a-gold{background:var(--gold-lt);color:#8a6410;border-left:4px solid var(--gold)}
+.a-purple{background:var(--purple-lt);color:var(--purple);border-left:4px solid var(--purple)}
+#toast{position:fixed;bottom:24px;right:24px;z-index:999;background:var(--navy);color:#fff;padding:10px 20px;border-radius:9px;font-size:12.5px;font-weight:500;box-shadow:var(--sh-md);transform:translateY(70px);transition:transform .28s;pointer-events:none;border-left:4px solid var(--gold);max-width:360px}
+#toast.on{transform:translateY(0)}
+.fg{display:flex;flex-direction:column;gap:4px}
+label{font-size:10.5px;font-weight:700;color:var(--gray-text);text-transform:uppercase;letter-spacing:.5px}
+.fc{padding:8px 11px;border:1.5px solid var(--gray-3);border-radius:6px;font-size:12.5px;font-family:var(--ff);outline:none;color:var(--text)}
+.fc:focus{border-color:var(--blue)}
+.dropzone{border:2px dashed var(--gray-3);border-radius:10px;padding:26px;text-align:center;cursor:pointer;transition:all .15s;background:var(--gray-1)}
+.dropzone:hover,.dropzone.drag{border-color:var(--blue);background:var(--blue-lt)}
+.dropzone-icon{font-size:26px;margin-bottom:6px}
+.dropzone-txt{font-size:12.5px;color:var(--navy);font-weight:600}
+.dropzone-sub{font-size:11px;color:var(--gray-text);margin-top:3px}
+.overlay{position:fixed;inset:0;background:rgba(6,15,30,.6);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:12px;max-width:760px;width:100%;max-height:86vh;overflow-y:auto;box-shadow:var(--sh-md)}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--gray-2);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;z-index:2}
+.modal-title{font-size:15px;font-weight:700;color:var(--navy)}
+.modal-body{padding:18px 20px}
+.modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--gray-text)}
+.step-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:10px}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+/* ── Timeline del ciclo ── */
+.cycle-wrap{display:flex;position:relative;margin:6px 0 26px;padding-top:6px}
+.cycle-step{flex:1;text-align:center;position:relative;padding:0 4px}
+.cycle-step:not(:last-child)::after{content:'';position:absolute;top:15px;left:56%;width:88%;height:3px;background:var(--gray-2);z-index:0}
+.cycle-step.done:not(:last-child)::after{background:var(--green)}
+.cycle-dot{width:30px;height:30px;border-radius:50%;background:var(--white);border:3px solid var(--gray-3);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:13px;position:relative;z-index:1}
+.cycle-step.done .cycle-dot{border-color:var(--green);background:var(--green);color:#fff}
+.cycle-step.active .cycle-dot{border-color:var(--gold);background:var(--gold);color:var(--navy);box-shadow:0 0 0 5px var(--gold-lt)}
+.cycle-lbl{font-size:11px;font-weight:700;color:var(--navy)}
+.cycle-date{font-size:10px;color:var(--gray-text);margin-top:1px}
+.cycle-step.active .cycle-lbl{color:#8a6410}
+.simbar{background:var(--navy-2);border-radius:9px;padding:10px 16px;display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.simbar label{color:#9cc3e3}
+.lock-tag{font-size:10px;color:var(--gray-text);display:flex;align-items:center;gap:4px}
+.hist-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-2);font-size:12px}
+.hist-item:last-child{border:none}
+.hist-dot{width:8px;height:8px;border-radius:50%;background:var(--green);margin-top:4px;flex-shrink:0}
+@media (max-width:900px){.cycle-lbl{font-size:9.5px}.cycle-date{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">🏪</div>
+    <div><div class="brand-name">Gestión de Insumos · Regional Oriente</div><div class="brand-sub">PROTOTIPO — Ciclo mensual mejorado</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px">
+    <div id="conn-status" style="font-size:11px;display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:rgba(255,255,255,.08)">
+      <span id="conn-dot" style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
+      <span id="conn-lbl" style="color:#fff">Conectando...</span>
+    </div>
+    <div style="font-size:11px;color:#7aa8d0">👤 <span id="top-role-name">Planificación</span></div>
+    <select class="fi" id="role-switch" style="background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.25);font-size:11px" onchange="setRole(this.value)">
+      <option value="planificacion">Ver como: Planificación</option>
+      <option value="almacen">Ver como: Almacén</option>
+      <option value="admin">Ver como: Admin</option>
+    </select>
+  </div>
+</div>
+
+<div class="app">
+<nav class="sidebar">
+  <div class="nav-sect">Principal</div>
+  <button class="nav-btn active" data-p="inicio" onclick="nav('inicio')"><span class="nav-icon">📊</span>Ciclo del Mes</button>
+  <div class="nav-sect">Distribución</div>
+  <button class="nav-btn" data-p="distribucion" onclick="nav('distribucion')"><span class="nav-icon">📋</span>Dotación (unificada)</button>
+  <button class="nav-btn" data-p="despacho" onclick="nav('despacho')"><span class="nav-icon">✅</span>Despacho</button>
+  <div class="nav-sect">Almacén</div>
+  <button class="nav-btn" data-p="inventario" onclick="nav('inventario')"><span class="nav-icon">📦</span>Inventario</button>
+  <button class="nav-btn" data-p="compras" onclick="nav('compras')"><span class="nav-icon">🛒</span>Plan de Compras</button>
+  <div class="nav-sect">Solicitudes</div>
+  <button class="nav-btn" data-p="pedidos" onclick="nav('pedidos')"><span class="nav-icon">📝</span>Pedidos Extraordinarios</button>
+  <div class="sidebar-foot" id="sidebar-foot">Conectando con tu Sheet...</div>
+</nav>
+
+<main class="main">
+
+<!-- ══════════════════ INICIO / CICLO ══════════════════ -->
+<div id="page-inicio" class="page active">
+  <div class="ph">
+    <div><div class="ph-title">📊 Dotación</div></div>
+  </div>
+
+  <div class="simbar">
+    <label>📅 Fecha simulada (para probar el ciclo):</label>
+    <input type="date" class="fi" id="sim-date" onchange="onSimDateChange()">
+    <button class="btn btn-ghost btn-sm" onclick="resetSimDate()">Usar fecha real</button>
+    <span style="margin-left:auto;color:#9cc3e3;font-size:11px" id="sim-hint"></span>
+  </div>
+
+  <div class="card" style="padding:22px 26px">
+    <div class="cycle-wrap" id="cycle-wrap"></div>
+    <div id="cycle-detail"></div>
+  </div>
+
+  <div id="ini-alert-area"></div>
+
+  <div class="kpis" id="ini-kpis"></div>
+
+  <div class="card">
+    <div class="card-hdr"><span class="card-hdr-title">🕓 Actividad reciente</span></div>
+    <div class="card-body" id="ini-hist"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ DISTRIBUCIÓN UNIFICADA ══════════════════ -->
+<div id="page-distribucion" class="page">
+  <div class="ph">
+    <div><div class="ph-title">📋 Dotación Mensual — Distribución</div><div class="ph-sub">Sucursales, Oficina Central y CEDIS en una sola vista, con filtro por tipo</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-teal btn-sm" onclick="abrirCargaMasivaDotacion()">📤 Cargar Excel masivo</button>
+      <button class="btn btn-ghost btn-sm" onclick="descargarPlantilla('dotacion')">📄 Descargar plantilla</button>
+      <button class="btn btn-navy btn-sm" onclick="toast('🖨 Vista de impresión (simulada en el prototipo)')">🖨 Imprimir</button>
+    </div>
+  </div>
+
+  <div id="dist-banner"></div>
+
+  <div class="card" style="padding:14px 18px;margin-bottom:16px">
+    <div class="filters">
+      <select class="fi" id="dist-fil-tipo" onchange="renderDistribucion()">
+        <option value="">Todos los tipos</option>
+        <option value="SUCURSAL">🏪 Sucursales</option>
+        <option value="OFICINA">🏢 Oficina Central</option>
+        <option value="CEDIS">🏭 CEDIS</option>
+      </select>
+      <select class="fi" id="dist-fil-reg" onchange="renderDistribucion()"><option value="">Todas las regionales / áreas</option></select>
+      <input class="fi fi-search" id="dist-search" placeholder="🔍 Buscar sucursal, área o insumo..." oninput="renderDistribucion()">
+      <button class="btn btn-ghost btn-sm" id="btn-comparar" onclick="toggleComparacion()">🔍 Comparar con mes anterior</button>
+      <span style="margin-left:auto;font-size:11px;color:var(--gray-text)" id="dist-count"></span>
+    </div>
+  </div>
+
+  <div id="dist-comparar-alert"></div>
+
+  <div class="card">
+    <div class="card-hdr">
+      <span class="card-hdr-title">Dotación cargada (heredada del mes anterior — solo se valida o ajusta)</span>
+      <div id="dist-approve-box"></div>
+    </div>
+    <div class="tbl-wrap" style="max-height:60vh;overflow-y:auto">
+      <table><thead><tr id="dist-thead-row">
+        <th>Tipo</th><th>Destino</th><th>Cód.</th><th>Insumo</th><th style="text-align:center">U.M.</th><th style="text-align:center">Cantidad/Mes ✏️</th><th style="text-align:center">Origen</th>
+      </tr></thead><tbody id="dist-tbody"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ INVENTARIO ══════════════════ -->
+<div id="page-inventario" class="page">
+  <div class="ph">
+    <div><div class="ph-title">📦 Inventario</div><div class="ph-sub">Se realiza en paralelo, hasta el día 24 (junto con la aprobación de dotación)</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-teal btn-sm" onclick="abrirCargaMasivaInventario()">📤 Cargar Excel masivo</button>
+      <button class="btn btn-ghost btn-sm" onclick="descargarPlantilla('inventario')">📄 Descargar plantilla</button>
+      <button class="btn btn-green" id="btn-inv-realizado" onclick="marcarInventarioRealizado()">✔ Marcar Inventario Realizado</button>
+    </div>
+  </div>
+  <div class="alert a-gold">✏️ Edita <strong>Stock</strong> para registrar lo contado físicamente. Al marcar "Inventario Realizado" este stock queda confirmado y <strong>se resta automáticamente del Plan de Compras</strong> de este ciclo.</div>
+  <div id="inv-status-alert"></div>
+  <div class="kpis" id="inv-kpis"></div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-hdr-title">Catálogo de Inventario</span><input class="fi fi-search" id="inv-search" placeholder="🔍 Buscar..." oninput="renderInventario()"></div>
+    <div class="tbl-wrap" style="max-height:60vh;overflow-y:auto"><table><thead><tr><th>Cód.</th><th>Nombre</th><th style="text-align:center">U.M.</th><th style="text-align:center">Stock ✏️</th><th style="text-align:center">Necesario/Mes</th><th style="text-align:center">Estado</th></tr></thead><tbody id="inv-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════════════ PEDIDOS EXTRAORDINARIOS ══════════════════ -->
+<div id="page-pedidos" class="page">
+  <div class="ph">
+    <div><div class="ph-title">📝 Pedidos Extraordinarios</div><div class="ph-sub">Solicitudes del 1 al 20 · Aprobación hasta el 24 · Solo lo aprobado hasta el 24 entra al ciclo actual</div></div>
+    <div class="ph-actions"><button class="btn btn-ghost btn-sm" onclick="toast('📥 Exportado (simulado)')">📥 Excel</button></div>
+  </div>
+  <div class="kpis" id="pext-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="alert a-purple" id="pext-cutoff-alert"></div>
+  <div class="tabs" id="pext-tabs">
+    <button class="tab-btn active" onclick="switchPextTab('pendiente',this)">⏳ Pendientes <span id="pext-cnt-pend" class="badge b-orange">0</span></button>
+    <button class="tab-btn" onclick="switchPextTab('aprobado',this)">✅ Aprobadas <span id="pext-cnt-aprob" class="badge b-green">0</span></button>
+    <button class="tab-btn" onclick="switchPextTab('rechazado',this)">❌ Rechazadas <span id="pext-cnt-rech" class="badge b-red">0</span></button>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-hdr-title" id="pext-table-title">Solicitudes</span></div>
+    <div class="tbl-wrap"><table><thead><tr>
+      <th>Fecha</th><th>Solicitante</th><th>Destino</th><th>Insumo</th><th style="text-align:center">Cant.</th><th>Motivo</th><th style="text-align:center">Aplica a</th><th style="text-align:center">Acción</th>
+    </tr></thead><tbody id="pext-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- ══════════════════ PLAN DE COMPRAS ══════════════════ -->
+<div id="page-compras" class="page">
+  <div class="ph">
+    <div><div class="ph-title">🛒 Plan de Compras</div><div class="ph-sub">Del 25 al 30 · Sucursales + Pedidos Aprobados + Oficina + CEDIS, menos Stock confirmado en inventario</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-ghost btn-sm" onclick="toast('📥 Excel exportado (simulado)')">📥 Excel</button>
+      <button class="btn btn-gold" id="btn-compras-confirmar" onclick="confirmarPlanCompras()">✔ Descargar y Confirmar Plan</button>
+    </div>
+  </div>
+  <div id="comp-status-alert"></div>
+  <div class="kpis" id="comp-kpis" style="grid-template-columns:repeat(4,1fr)"></div>
+  <div class="card">
+    <div class="card-hdr" style="background:var(--navy)"><span style="color:#fff;font-weight:700;font-size:13px">📊 Consolidado a Comprar</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Insumo</th><th style="text-align:center">Cód.</th><th style="text-align:center">U.M.</th><th style="text-align:center">Sucursales</th><th style="text-align:center">Ped. Ext. aprob.</th><th style="text-align:center">Oficina/CEDIS</th><th style="text-align:center">Total Necesario</th><th style="text-align:center">Stock confirmado</th><th style="text-align:center">A Comprar</th></tr></thead>
+      <tbody id="comp-tbody"></tbody>
+      <tfoot id="comp-tfoot"></tfoot>
+    </table></div>
+  </div>
+</div>
+
+<!-- ══════════════════ DESPACHO ══════════════════ -->
+<div id="page-despacho" class="page">
+  <div class="ph">
+    <div><div class="ph-title">✅ Despacho</div><div class="ph-sub">Del 1 al 15 · Al confirmar, se cierra el ciclo y comienza el siguiente</div></div>
+    <div class="ph-actions">
+      <button class="btn btn-green" onclick="completarTodoDespacho()">✔ Completar Todo</button>
+      <button class="btn btn-gold" id="btn-desp-confirmar" onclick="confirmarDespachoYCerrarCiclo()">🔒 Confirmar Despacho y Cerrar Ciclo</button>
+    </div>
+  </div>
+  <div class="alert a-gold">✏️ Edita <strong>Distribuido</strong> según lo despachado a cada destino.</div>
+  <div id="desp-status-alert"></div>
+  <div class="kpis" id="desp-kpis"></div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-hdr-title" id="desp-count"></span></div>
+    <div class="tbl-wrap" style="max-height:60vh;overflow-y:auto"><table><thead><tr>
+      <th>Destino</th><th>Tipo</th><th>Insumo</th><th style="text-align:center">U.M.</th><th style="text-align:center">Dotación</th><th style="text-align:center">Distribuido ✏️</th><th style="text-align:center">Pendiente</th><th style="text-align:center">Estado</th>
+    </tr></thead><tbody id="desp-tbody"></tbody></table></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- ══ MODAL: Carga masiva ══ -->
+<div class="overlay" id="modal-carga">
+  <div class="modal">
+    <div class="modal-hdr"><span class="modal-title" id="modal-carga-title">Carga masiva</span><button class="modal-close" onclick="cerrarModal('modal-carga')">✕</button></div>
+    <div class="modal-body">
+      <div id="modal-carga-steps" style="margin-bottom:16px"></div>
+      <div class="dropzone" id="dropzone" onclick="document.getElementById('file-input').click()">
+        <div class="dropzone-icon">📤</div>
+        <div class="dropzone-txt">Haz clic o arrastra tu archivo Excel aquí</div>
+        <div class="dropzone-sub">Debe seguir la plantilla descargable (mismo formato para subir y para descargar)</div>
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv" style="display:none" onchange="onFileSelected(this.files)">
+      </div>
+      <div id="modal-carga-preview" style="margin-top:16px"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG — conexión real a tu Google Sheet (mismo Sheet e igual estructura que tu index.html)
+// ══════════════════════════════════════════════════════
+var SHEET_ID = '1c_399CP5tbjExylSH8BsEASIcWSK3XHXiwRu9QW_mcc';
+var GIDS = {
+  planSucursal:  '0',
+  planOficina:   '610345905',
+  inventario:    '1504860086',
+  listaSucursal: '2143064505',
+  listaInsumos:  '802209175',
+  solicitudes:   '884489091',
+  despacho:      '1234820760'
+};
+// Pestaña nueva "Control_Ciclo": se lee por NOMBRE (no por gid) para no depender de un id que aún no existe.
+var SHEET_CICLO_NOMBRE = 'Control_Ciclo';
+// URL de tu Web App (Apps Script ampliado). Si la vuelves a implementar, actualiza esta línea.
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZg9krGeS-UV6cv3L7b_upe2R2mRCxrRuhv4J0xrKgpymMbL3vqGoUtQCphdPfc7rNIg/exec';
+var MODO_REAL = true; // si la carga real falla, se cae automáticamente a datos de muestra
+
+function csvUrl(gid){ return 'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&gid='+gid+'&t='+Date.now(); }
+function csvUrlSheet(nombre){ return 'https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&sheet='+encodeURIComponent(nombre)+'&t='+Date.now(); }
+function normCod(v){ if(!v && v!==0) return ''; return String(v).trim().replace(/\.0+$/, ''); }
+function parseCSV(text){
+  var rows=[]; var lines=text.split(/\r?\n/);
+  lines.forEach(function(line){
+    if(!line.trim()) return;
+    var cols=[],cur='',inQ=false;
+    for(var i=0;i<line.length;i++){
+      var c=line[i];
+      if(c==='"'){ if(inQ&&line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
+      else if(c===','&&!inQ){ cols.push(cur.trim()); cur=''; }
+      else cur+=c;
+    }
+    cols.push(cur.trim()); rows.push(cols);
+  });
+  return rows;
+}
+function fetchCSV(gid){ return fetch(csvUrl(gid)).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); }).then(parseCSV); }
+function fetchCSVSheet(nombre){ return fetch(csvUrlSheet(nombre)).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); }).then(parseCSV); }
+
+// ══════════════════════════════════════════════════════
+//  ESTADO GLOBAL (se llena con datos de muestra al inicio y
+//  se reemplaza por datos reales si la conexión funciona)
+// ══════════════════════════════════════════════════════
+var _role = 'planificacion';
+var ROLES = {planificacion:'Planificación', almacen:'Responsable de Almacén', admin:'Administrador'};
+var SUCURSALES=[], INSUMOS=[], AREAS_OFICINA=[], DIST=[], INVENTARIO=[], PEDIDOS_EXT=[], DESPACHO=[];
+var CICLO = { dotAprobada:false, dotAprobadaFecha:null, invRealizado:false, invRealizadoFecha:null, comprasConfirmadas:false, comprasConfirmadasFecha:null, despachoConfirmado:false };
+var HIST = [];
+var SIM_DATE = new Date(); // fecha "hoy" simulada (controla en qué fase del ciclo se ve la app)
+
+function seedMock(){
+  SUCURSALES = [
+    {nombre:'SUC-10 CRISTO REDENTOR', cod:5406, regional:'SANTA CRUZ'},
+    {nombre:'SUC-43 VIEDMA', cod:5431, regional:'SANTA CRUZ'},
+    {nombre:'SUC-34 PROSALUD ALEMANA', cod:5428, regional:'SANTA CRUZ'},
+    {nombre:'SUC-22 IRALA', cod:5420, regional:'SANTA CRUZ'},
+    {nombre:'SUC-84 YACUIBA', cod:6084, regional:'TARIJA'},
+    {nombre:'SUC-106 PLAZA PRINCIPAL (TARIJA)', cod:6106, regional:'TARIJA'},
+    {nombre:'SUC-29 TRINIDAD (BENI)', cod:6029, regional:'BENI'},
+    {nombre:'SUC-38 POMPEYA (BENI)', cod:6038, regional:'BENI'}
+  ];
+  INSUMOS = [
+    {cod:'25639', nombre:'ROLLO DE FACTURA', um:'ROL'},
+    {cod:'15519', nombre:'BOLIGRAFO AZUL', um:'PZA'},
+    {cod:'15525', nombre:'DIUREX GRANDE 200 YARDAS', um:'PZA'},
+    {cod:'15564', nombre:'AMBIENTADOR AEROSOL', um:'PZA'},
+    {cod:'15571', nombre:'ESPONJAS VERDE/AMARILLA', um:'PZA'},
+    {cod:'15663', nombre:'PAPEL BOND TAMAÑO CARTA (X 10 PQT) X500', um:'PQT'},
+    {cod:'15574', nombre:'ALZA BASURA', um:'PZA'},
+    {cod:'15526', nombre:'ARCHIVADOR CONDOR GRANDE', um:'PZA'},
+    {cod:'16020', nombre:'SOBRE KRAFT. DOBLE OFICIO 37.2 X 45', um:'PZA'},
+    {cod:'15550', nombre:'ESTILETE', um:'PZA'}
+  ];
+  AREAS_OFICINA = ['FINANZAS','TALENTO HUMANO','COMERCIAL Y ABASTECIMIENTO','LEGAL','MARKETING','COMUNICACIÓN','VENTAS Y OPERACIONES'];
+
+  DIST = [];
+  var id=1;
+  SUCURSALES.forEach(function(s,i){
+    [INSUMOS[0],INSUMOS[1],INSUMOS[2],INSUMOS[3],INSUMOS[4]].forEach(function(ins,j){
+      DIST.push({id:id++, tipo:'SUCURSAL', destino:s.nombre, regionalOArea:s.regional, cod:ins.cod, insumo:ins.nombre, um:ins.um, cantidad: 4+((i+j)%5)*2, origen:'Mes anterior'});
+    });
+  });
+  AREAS_OFICINA.slice(0,4).forEach(function(area,i){
+    [INSUMOS[5],INSUMOS[6],INSUMOS[7],INSUMOS[8]].forEach(function(ins,j){
+      DIST.push({id:id++, tipo:'OFICINA', destino:area, regionalOArea:area, cod:ins.cod, insumo:ins.nombre, um:ins.um, cantidad: 2+((i+j)%4), origen:'Mes anterior'});
+    });
+  });
+  [INSUMOS[1],INSUMOS[2],INSUMOS[3],INSUMOS[5]].forEach(function(ins,j){
+    DIST.push({id:id++, tipo:'CEDIS', destino:'CEDIS', regionalOArea:'CEDIS', cod:ins.cod, insumo:ins.nombre, um:ins.um, cantidad: 20+j*10, origen:'Mes anterior'});
+  });
+
+  INVENTARIO = INSUMOS.map(function(ins,i){ return {cod:ins.cod, nombre:ins.nombre, um:ins.um, stock: [39,12,6,3,1,24,39,0,12,1][i]||5}; });
+
+  PEDIDOS_EXT = [
+    {id:'EXT-001', fecha:'2026-06-05', solicitante:'Fernanda Gutierrez', destino:'TALENTO HUMANO', insumo:'BOLIGRAFO AZUL', cod:'15519', cant:3, motivo:'EVENTO ESPECIAL', estado:'pendiente'},
+    {id:'EXT-002', fecha:'2026-06-08', solicitante:'FERNANDA', destino:'SUC-10 CRISTO REDENTOR', insumo:'AMBIENTADOR AEROSOL', cod:'15564', cant:2, motivo:'AGOTAMIENTO DE STOCK', estado:'pendiente'},
+    {id:'EXT-003', fecha:'2026-06-12', solicitante:'Ronald Mendez', destino:'SUC-34 PROSALUD ALEMANA', insumo:'DIUREX GRANDE 200 YARDAS', cod:'15525', cant:5, motivo:'DAÑO / PÉRDIDA', estado:'aprobado', fechaAprob:'2026-06-15'},
+    {id:'EXT-004', fecha:'2026-06-18', solicitante:'Fernanda', destino:'SUC-43 VIEDMA', insumo:'ESTILETE', cod:'15550', cant:1, motivo:'AGOTAMIENTO DE STOCK', estado:'rechazado', fechaAprob:'2026-06-19'},
+    {id:'EXT-005', fecha:'2026-06-20', solicitante:'Marcelo Rojas', destino:'SUC-22 IRALA', insumo:'ROLLO DE FACTURA', cod:'25639', cant:4, motivo:'AGOTAMIENTO DE STOCK', estado:'aprobado', fechaAprob:'2026-06-27'}
+  ];
+
+  DESPACHO = DIST.map(function(d){ return {id:d.id, tipo:d.tipo, destino:d.destino, cod:d.cod, insumo:d.insumo, um:d.um, dotacion:d.cantidad, distribuido:0}; });
+
+  CICLO = { dotAprobada:false, dotAprobadaFecha:null, invRealizado:false, invRealizadoFecha:null, comprasConfirmadas:false, comprasConfirmadasFecha:null, despachoConfirmado:false };
+  HIST = [
+    {fecha:'2026-06-30', txt:'Almacén generó pedidos a proveedor sobre el Plan de Compras confirmado.'},
+    {fecha:'2026-06-24', txt:'Planificación aprobó la dotación mensual y el inventario quedó cerrado.'},
+    {fecha:'2026-06-19', txt:'Se rechazó la solicitud EXT-004 (Estilete, Suc. Viedma).'}
+  ];
+}
+seedMock(); // datos de muestra cargados de entrada; cargarDatosReales() los reemplaza si la conexión funciona
+
+// ══════════════════════════════════════════════════════
+//  CARGA REAL DESDE GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+function claveDespacho(tipo,destino,cod){
+  if(tipo==='CEDIS') return '__CEDIS__||'+cod;
+  if(tipo==='OFICINA') return '__OFIC__||'+destino+'||'+cod;
+  return destino+'||'+cod;
+}
+async function fetchCSVEtiquetado(gid,label){
+  try{ return await fetchCSV(gid); }
+  catch(e){ throw new Error('Hoja "'+label+'" (gid '+gid+'): '+e.message); }
+}
+async function cargarDatosReales(){
+  var rSuc = await fetchCSVEtiquetado(GIDS.listaSucursal,'Lista Sucursales');
+  var nuevasSuc = rSuc.slice(1).filter(function(r){return r[0]&&r[1];}).map(function(r){
+    return {nombre:r[0], cod:normCod(r[1]), regional:r[2]||''};
+  });
+  if(!nuevasSuc.length) throw new Error('Hoja "Lista Sucursales" respondió vacía (¿la pestaña o el gid cambiaron?).');
+
+  var rIns = await fetchCSVEtiquetado(GIDS.listaInsumos,'Lista Insumos');
+  var nuevosIns = rIns.slice(1).filter(function(r){return r[0];}).map(function(r){
+    return {cod:normCod(r[0]), nombre:r[1]||'', um:r[2]||''};
+  });
+
+  var rInv = await fetchCSVEtiquetado(GIDS.inventario,'Inventario');
+  var nuevoInv = rInv.slice(1).filter(function(r){return r[0];}).map(function(r){
+    return {cod:normCod(r[0]), nombre:r[1]||'', um:r[2]||'', stock:parseFloat(r[3])||0};
+  });
+
+  var rPlanSuc = await fetchCSVEtiquetado(GIDS.planSucursal,'Plan. Sucursal');
+  var regionalPorSuc = {}; nuevasSuc.forEach(function(s){ regionalPorSuc[s.nombre]=s.regional; });
+  var distSuc = rPlanSuc.slice(1).filter(function(r){return r[0]&&r[4];}).map(function(r,i){
+    return {id:'S'+i, tipo:'SUCURSAL', destino:(r[4]||'').trim(), regionalOArea:regionalPorSuc[(r[4]||'').trim()]||'', cod:normCod(r[3]), insumo:r[0]||'', um:r[1]||'', cantidad:parseFloat(r[2])||0, origen:'Sheet'};
+  });
+
+  var rPlanOfi = await fetchCSVEtiquetado(GIDS.planOficina,'Plan. Oficina');
+  var distOfi = rPlanOfi.slice(1).filter(function(r){
+    if(!r[0]) return false;
+    var nombre=(r[0]||'').trim().toUpperCase();
+    if(/^TOTAL|^SUBTOTAL|^SUB.TOTAL/.test(nombre)) return false;
+    if(!r[4]) return false;
+    return true;
+  }).map(function(r,i){
+    var area=(r[4]||'').toUpperCase().trim();
+    return {id:'O'+i, tipo: area==='CEDIS'?'CEDIS':'OFICINA', destino:area, regionalOArea:area, cod:normCod(r[1]), insumo:r[0]||'', um:r[2]||'', cantidad:parseFloat(r[3])||0, origen:'Sheet'};
+  });
+  var nuevoDist = distSuc.concat(distOfi);
+  if(!nuevoDist.length) throw new Error('Plan. Sucursal / Plan. Oficina respondieron vacíos.');
+  var areasUnicas = Array.from(new Set(distOfi.filter(function(d){return d.tipo==='OFICINA';}).map(function(d){return d.destino;})));
+
+  var rSol = await fetchCSVEtiquetado(GIDS.solicitudes,'SOLICITUDES');
+  var nuevosPed = rSol.slice(1).filter(function(r){return r[0];}).map(function(r){
+    var estado = (r[8]||'PENDIENTE').toLowerCase();
+    var fechaEstado = r[11] || ''; // columna L (índice 11) — Fecha Estado
+    return {id:r[0], fecha:r[1], solicitante:r[2], destino:r[3], insumo:r[4], cod:normCod(r[5]), cant:parseFloat(r[6])||0, motivo:r[7], estado:estado, fechaAprob: fechaEstado || undefined};
+  });
+
+  var rDesp = await fetchCSVEtiquetado(GIDS.despacho,'Despacho');
+  var claveMap = {};
+  rDesp.slice(1).forEach(function(r){ var clave=(r[8]||'').trim(); if(clave) claveMap[clave]=parseFloat(r[5])||0; });
+  var nuevoDesp = nuevoDist.map(function(d){
+    var clave = claveDespacho(d.tipo,d.destino,d.cod);
+    return {id:d.id, tipo:d.tipo, destino:d.destino, cod:d.cod, insumo:d.insumo, um:d.um, dotacion:d.cantidad, distribuido: claveMap[clave]||0};
+  });
+
+  // aplicar todo junto (para no dejar la UI a medio camino si algo falla antes)
+  SUCURSALES = nuevasSuc; INSUMOS = nuevosIns; AREAS_OFICINA = areasUnicas;
+  DIST = nuevoDist; INVENTARIO = nuevoInv; PEDIDOS_EXT = nuevosPed; DESPACHO = nuevoDesp;
+
+  await refrescarCicloDelMes();
+}
+// Lee/crea en memoria el estado del ciclo (Control_Ciclo) para el mes de SIM_DATE
+async function refrescarCicloDelMes(){
+  var mes = mesActual();
+  try{
+    var rows = await fetchCSVSheet(SHEET_CICLO_NOMBRE);
+    var fila = rows.slice(1).find(function(r){ return (r[0]||'').trim()===mes; });
+    if(fila){
+      CICLO = {
+        dotAprobada: (fila[1]||'').toUpperCase()==='TRUE', dotAprobadaFecha: fila[2]||null,
+        invRealizado: (fila[4]||'').toUpperCase()==='TRUE', invRealizadoFecha: fila[5]||null,
+        comprasConfirmadas: (fila[7]||'').toUpperCase()==='TRUE', comprasConfirmadasFecha: fila[8]||null,
+        despachoConfirmado: (fila[10]||'').toUpperCase()==='TRUE'
+      };
+      return;
+    }
+  }catch(e){ /* la pestaña Control_Ciclo aún no existe o no es accesible: se asume ciclo nuevo */ }
+  CICLO = { dotAprobada:false, dotAprobadaFecha:null, invRealizado:false, invRealizadoFecha:null, comprasConfirmadas:false, comprasConfirmadasFecha:null, despachoConfirmado:false };
+}
+// Envía una acción al Apps Script (fire-and-forget: no-cors no permite leer la respuesta)
+function postAccion(payload){
+  if(!MODO_REAL) return Promise.resolve();
+  return fetch(APPS_SCRIPT_URL, {
+    method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  }).catch(function(){ toast('⚠️ No se pudo confirmar el guardado en la nube (sin conexión). Los cambios quedaron solo en esta pantalla.'); });
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVEGACIÓN
+// ══════════════════════════════════════════════════════
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelector('.nav-btn[data-p="'+page+'"]').classList.add('active');
+  RENDERS[page] && RENDERS[page]();
+}
+function setRole(r){
+  _role = r;
+  document.getElementById('top-role-name').textContent = ROLES[r];
+  toast('👤 Ahora ves la plataforma como: ' + ROLES[r]);
+  var cur = document.querySelector('.page.active').id.replace('page-','');
+  RENDERS[cur] && RENDERS[cur]();
+}
+function toast(msg,dur=3200){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),dur); }
+function fmt(n){ return Number(n).toLocaleString('es-BO'); }
+
+// ══════════════════════════════════════════════════════
+//  LÓGICA DE FECHAS DEL CICLO
+// ══════════════════════════════════════════════════════
+function today(){ return SIM_DATE; }
+function dayOfMonth(){ return today().getDate(); }
+function cicloFase(){
+  var d = dayOfMonth();
+  if(d<=20) return 'carga';        // 1-20: carga dotación + solicitudes extraordinarias
+  if(d<=24) return 'aprobacion';   // 21-24: aprobación dotación + pedidos ext + inventario
+  if(d<=30) return 'compras';      // 25-30(31): plan de compras a proveedor
+  return 'despacho';
+}
+function cicloFaseDespacho(){ return dayOfMonth()<=15; } // 1-15 despacho (se solapa con "carga" del ciclo siguiente)
+function mesActual(){ var d=today(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+
+async function onSimDateChange(){
+  var v = document.getElementById('sim-date').value;
+  if(v){ SIM_DATE = new Date(v+'T12:00:00'); await refrescarCicloDelMes(); renderInicio(); }
+}
+async function resetSimDate(){ SIM_DATE = new Date(); document.getElementById('sim-date').value=''; await refrescarCicloDelMes(); renderInicio(); toast('📅 Usando la fecha real de hoy'); }
+
+// ══════════════════════════════════════════════════════
+//  RENDER: INICIO / CICLO
+// ══════════════════════════════════════════════════════
+var FASES = [
+  {key:'carga', icon:'📋', lbl:'Carga Dotación', rango:'1 – 20'},
+  {key:'aprobacion', icon:'✅', lbl:'Aprobación + Inventario', rango:'21 – 24'},
+  {key:'compras', icon:'🛒', lbl:'Plan de Compras', rango:'25 – 30'},
+  {key:'despacho', icon:'📦', lbl:'Despacho', rango:'1 – 15 (mes sig.)'}
+];
+function renderInicio(){
+  var fase = cicloFase();
+  var html='';
+  FASES.forEach(function(f,i){
+    var order = ['carga','aprobacion','compras','despacho'];
+    var curIdx = order.indexOf(fase);
+    var cls = i<curIdx?'done':(i===curIdx?'active':'');
+    html += '<div class="cycle-step '+cls+'"><div class="cycle-dot">'+(i<curIdx?'✓':f.icon)+'</div><div class="cycle-lbl">'+f.lbl+'</div><div class="cycle-date">Día '+f.rango+'</div></div>';
+  });
+  document.getElementById('cycle-wrap').innerHTML = html;
+
+  var detail = {
+    carga: '<div class="alert a-blue">📋 <div><strong>Fase actual: Carga de Dotación.</strong> La dotación del próximo mes ya se heredó automáticamente del mes anterior. Planificación solo debe <strong>validarla o ajustarla</strong> en el módulo <em>Dotación (unificada)</em>. En paralelo, cualquier encargado de área puede llenar el formulario de <strong>Pedidos Extraordinarios</strong>.</div></div>',
+    aprobacion: '<div class="alert a-gold">✅ <div><strong>Fase actual: Aprobación (hasta el día 24).</strong> Planificación debe <strong>aprobar la dotación</strong> y <strong>aprobar/rechazar los pedidos extraordinarios</strong> pendientes. Almacén debe aprovechar esta ventana para <strong>completar el inventario físico</strong> y marcarlo como realizado.</div></div>',
+    compras: '<div class="alert a-purple">🛒 <div><strong>Fase actual: Plan de Compras (25 al 30).</strong> Almacén descarga el Plan de Compras consolidado (dotación aprobada + pedidos extraordinarios aprobados antes del 24 + stock confirmado) y lo confirma para pedir a proveedores.</div></div>',
+    despacho: '<div class="alert a-green">📦 <div><strong>Fase actual: Despacho (1 al 15).</strong> A medida que llegan los insumos, Almacén despacha a cada sucursal/área. Al confirmar el despacho se <strong>cierra el ciclo</strong> y la dotación validada se hereda automáticamente al siguiente mes.</div></div>'
+  };
+  document.getElementById('cycle-detail').innerHTML = detail[fase];
+
+  var alerts='';
+  if(fase==='aprobacion' && !CICLO.dotAprobada) alerts += '<div class="alert a-red">⚠️ Quedan <strong>'+(24-dayOfMonth())+' días</strong> para aprobar la dotación y el inventario antes del cierre del día 24.</div>';
+  if(fase==='compras' && !CICLO.dotAprobada) alerts += '<div class="alert a-red">⚠️ La dotación de este ciclo <strong>no fue aprobada</strong> a tiempo. Revísala en Distribución.</div>';
+  document.getElementById('ini-alert-area').innerHTML = alerts;
+
+  var pend = PEDIDOS_EXT.filter(p=>p.estado==='pendiente').length;
+  var kpis = [
+    kpi('navy','Sucursales', SUCURSALES.length, 'en Regional Oriente'),
+    kpi(CICLO.dotAprobada?'green':'orange','Dotación', CICLO.dotAprobada?'Aprobada':'Pendiente', CICLO.dotAprobadaFecha?('el '+CICLO.dotAprobadaFecha):'validar antes del 24'),
+    kpi(CICLO.invRealizado?'green':'orange','Inventario', CICLO.invRealizado?'Realizado':'Pendiente', CICLO.invRealizadoFecha?('el '+CICLO.invRealizadoFecha):'faltan sucursales por contar'),
+    kpi(pend>0?'red':'green','Pedidos Ext.', pend, pend>0?'pendientes de aprobar':'todo resuelto'),
+    kpi(CICLO.comprasConfirmadas?'green':'gray','Plan Compras', CICLO.comprasConfirmadas?'Confirmado':'—', CICLO.comprasConfirmadasFecha||'')
+  ];
+  document.getElementById('ini-kpis').innerHTML = kpis.join('');
+
+  document.getElementById('ini-hist').innerHTML = HIST.map(h=>'<div class="hist-item"><div class="hist-dot"></div><div><div>'+h.txt+'</div><div style="color:var(--gray-text);font-size:10.5px;margin-top:2px">'+h.fecha+'</div></div></div>').join('') || '<div style="color:var(--gray-text);font-size:12px">Sin actividad aún.</div>';
+}
+function kpi(color,lbl,val,note){ return '<div class="kpi '+color+'"><div class="kpi-lbl">'+lbl+'</div><div class="kpi-val">'+val+'</div><div class="kpi-note">'+(note||'')+'</div></div>'; }
+
+// ══════════════════════════════════════════════════════
+//  RENDER: DISTRIBUCIÓN (unificada por filtros, no pestañas)
+// ══════════════════════════════════════════════════════
+function poblarFiltrosDist(){
+  var selReg = document.getElementById('dist-fil-reg');
+  var vals = Array.from(new Set(DIST.map(d=>d.regionalOArea))).sort();
+  selReg.innerHTML = '<option value="">Todas las regionales / áreas</option>' + vals.map(v=>'<option value="'+v+'">'+v+'</option>').join('');
+}
+function renderDistribucion(){
+  if(!document.getElementById('dist-fil-reg').options.length) poblarFiltrosDist();
+  var tipo = document.getElementById('dist-fil-tipo').value;
+  var reg = document.getElementById('dist-fil-reg').value;
+  var q = document.getElementById('dist-search').value.toLowerCase();
+  var planif = _role==='planificacion';
+  var rows = DIST.filter(d=>{
+    if(tipo && d.tipo!==tipo) return false;
+    if(reg && d.regionalOArea!==reg) return false;
+    if(q && !(d.destino.toLowerCase().includes(q)||d.insumo.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  document.getElementById('dist-count').textContent = rows.length + ' filas';
+  var icon = {SUCURSAL:'🏪',OFICINA:'🏢',CEDIS:'🏭'};
+
+  // ── encabezado dinámico: agrega columnas de comparación solo si está activada ──
+  var thead = document.getElementById('dist-thead-row');
+  thead.innerHTML = '<th>Tipo</th><th>Destino</th><th>Cód.</th><th>Insumo</th><th style="text-align:center">U.M.</th><th style="text-align:center">Cantidad/Mes ✏️</th>'
+    + (MOSTRAR_COMPARACION ? '<th style="text-align:center">Mes Anterior ('+HISTORIAL_MES_COMPARADO+')</th><th style="text-align:center">Diferencia</th>' : '')
+    + '<th style="text-align:center">Origen</th>';
+
+  document.getElementById('dist-tbody').innerHTML = rows.map(function(d){
+    var origenBadge = d.origen==='Carga masiva' ? '<span class="badge b-blue">📤 Carga masiva</span>' : d.origen==='Editado' ? '<span class="badge b-gold">✏️ Editado</span>' : '<span class="badge b-navy">'+(d.origen==='Sheet'?'Sheet':'Mes anterior')+'</span>';
+    var comparaCols = '';
+    if(MOSTRAR_COMPARACION){
+      var clave = d.tipo+'||'+d.destino+'||'+d.cod;
+      var anterior = HISTORIAL_ANTERIOR.hasOwnProperty(clave) ? HISTORIAL_ANTERIOR[clave] : null;
+      if(anterior===null){
+        comparaCols = '<td style="text-align:center;color:var(--gray-text)">— nuevo —</td><td style="text-align:center"><span class="badge b-blue">Nuevo</span></td>';
+      } else {
+        var diff = d.cantidad - anterior;
+        var diffTxt = diff===0 ? 'Igual' : (diff>0?'+':'')+fmt(diff);
+        var diffBadge = diff===0 ? '<span class="badge b-navy">Igual</span>' : diff>0 ? '<span class="badge b-green">▲ '+diffTxt+'</span>' : '<span class="badge b-red">▼ '+diffTxt+'</span>';
+        comparaCols = '<td style="text-align:center">'+fmt(anterior)+'</td><td style="text-align:center">'+diffBadge+'</td>';
+      }
+    }
+    return '<tr><td>'+icon[d.tipo]+' '+d.tipo+'</td><td>'+d.destino+'</td><td>'+d.cod+'</td><td>'+d.insumo+'</td><td style="text-align:center">'+d.um+'</td>'+
+      '<td style="text-align:center"><input class="ed" type="number" value="'+d.cantidad+'" '+(CICLO.dotAprobada?'disabled':'')+' onchange="editarCantidadDist('+d.id+',this.value)"></td>'+
+      comparaCols+
+      '<td style="text-align:center">'+origenBadge+'</td></tr>';
+  }).join('') || '<tr><td colspan="'+(MOSTRAR_COMPARACION?9:7)+'" style="text-align:center;color:var(--gray-text);padding:20px">Sin resultados</td></tr>';
+
+  // banner + botón aprobar
+  var banner = '';
+  if(CICLO.dotAprobada){
+    banner = '<div class="alert a-green">✅ Dotación de este ciclo <strong>aprobada por Planificación</strong> el '+CICLO.dotAprobadaFecha+'. Almacén ya puede verla reflejada en el Plan de Compras.</div>';
+  } else {
+    banner = '<div class="alert a-gold">✏️ Esta dotación se heredó automáticamente del mes anterior. Planificación puede ajustar cantidades y luego debe <strong>aprobarla antes del día 24</strong> para que Almacén sepa que puede continuar.</div>';
+  }
+  document.getElementById('dist-banner').innerHTML = banner;
+
+  var box = document.getElementById('dist-approve-box');
+  if(planif && !CICLO.dotAprobada){
+    box.innerHTML = '<button class="btn btn-green btn-sm" onclick="aprobarDotacion()">✅ Aprobar Dotación del Ciclo</button>';
+  } else if(CICLO.dotAprobada){
+    box.innerHTML = '<span class="badge b-green">✅ Aprobada el '+CICLO.dotAprobadaFecha+'</span>';
+  } else {
+    box.innerHTML = '<span class="badge b-orange">⏳ Pendiente de aprobación por Planificación</span>';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  COMPARAR CON MES ANTERIOR (usa la pestaña Historial_Dotacion,
+//  que se llena sola cada vez que Planificación aprueba la dotación)
+// ══════════════════════════════════════════════════════
+var MOSTRAR_COMPARACION = false;
+var HISTORIAL_ANTERIOR = {};   // clave "tipo||destino||cod" -> cantidad del último mes aprobado
+var HISTORIAL_MES_COMPARADO = '';
+var _historialCargado = false;
+
+async function toggleComparacion(){
+  var btn = document.getElementById('btn-comparar');
+  if(MOSTRAR_COMPARACION){
+    MOSTRAR_COMPARACION = false;
+    btn.textContent = '🔍 Comparar con mes anterior';
+    document.getElementById('dist-comparar-alert').innerHTML = '';
+    renderDistribucion();
+    return;
+  }
+  btn.textContent = '⏳ Cargando comparación...';
+  btn.disabled = true;
+  try{
+    await cargarHistorialAnterior();
+    MOSTRAR_COMPARACION = true;
+    btn.disabled = false;
+    btn.textContent = '✕ Ocultar comparación';
+    if(!HISTORIAL_MES_COMPARADO){
+      document.getElementById('dist-comparar-alert').innerHTML = '<div class="alert a-gold">Aún no hay ningún mes aprobado guardado para comparar (la pestaña Historial_Dotacion se llena la primera vez que se aprueba una dotación).</div>';
+    } else {
+      document.getElementById('dist-comparar-alert').innerHTML = '<div class="alert a-blue">Comparando contra la última dotación <strong>aprobada</strong>, del mes <strong>'+HISTORIAL_MES_COMPARADO+'</strong>.</div>';
+    }
+    renderDistribucion();
+  }catch(e){
+    btn.disabled = false;
+    btn.textContent = '🔍 Comparar con mes anterior';
+    toast('⚠️ No se pudo cargar el historial: '+e.message);
+  }
+}
+async function cargarHistorialAnterior(){
+  if(_historialCargado) return; // se carga una sola vez por sesión
+  var rows;
+  try{ rows = await fetchCSVSheet('Historial_Dotacion'); }
+  catch(e){ HISTORIAL_ANTERIOR={}; HISTORIAL_MES_COMPARADO=''; _historialCargado=true; return; }
+
+  var body = rows.slice(1).filter(function(r){return r[0];});
+  if(!body.length){ HISTORIAL_ANTERIOR={}; HISTORIAL_MES_COMPARADO=''; _historialCargado=true; return; }
+
+  // toma el mes más reciente que sea ANTERIOR al mes que se está viendo (mesActual())
+  var mesActualStr = mesActual();
+  var meses = Array.from(new Set(body.map(function(r){return (r[0]||'').trim();}))).filter(function(m){ return m && m < mesActualStr; }).sort();
+  var mesElegido = meses.length ? meses[meses.length-1] : '';
+
+  var mapa = {};
+  if(mesElegido){
+    body.filter(function(r){ return (r[0]||'').trim()===mesElegido; }).forEach(function(r){
+      var clave = (r[1]||'').trim()+'||'+(r[2]||'').trim()+'||'+normCod(r[3]);
+      mapa[clave] = parseFloat(r[6])||0;
+    });
+  }
+  HISTORIAL_ANTERIOR = mapa;
+  HISTORIAL_MES_COMPARADO = mesElegido;
+  _historialCargado = true;
+}
+function editarCantidadDist(id,val){
+  var d = DIST.find(x=>x.id===id);
+  if(!d) return;
+  d.cantidad = parseFloat(val)||0;
+  d.origen = 'Editado';
+  toast('✏️ Guardando: '+d.insumo+' — '+d.destino);
+  postAccion({accion:'guardarDotacion', usuario:_role, filas:[{tipo:d.tipo, destino:d.destino, cod:d.cod, cantidad:d.cantidad}]});
+}
+async function aprobarDotacion(){
+  CICLO.dotAprobada = true;
+  CICLO.dotAprobadaFecha = today().toLocaleDateString('es-BO');
+  HIST.unshift({fecha:CICLO.dotAprobadaFecha, txt:'Planificación aprobó la dotación mensual del ciclo actual.'});
+  renderDistribucion();
+  toast('✅ Dotación aprobada. Almacén ya puede continuar con Inventario y Plan de Compras.');
+  var filasSnapshot = DIST.map(function(d){ return {tipo:d.tipo, destino:d.destino, cod:d.cod, insumo:d.insumo, um:d.um, cantidad:d.cantidad}; });
+  await postAccion({accion:'marcarCiclo', mes:mesActual(), campo:'dotAprobada', usuario:_role, filas:filasSnapshot});
+  _historialCargado = false; // fuerza a releer el historial la próxima vez que se compare, ya que acaba de cambiar
+}
+
+// carga masiva de dotación
+function abrirCargaMasivaDotacion(){
+  abrirModalCarga('dotacion','📤 Carga masiva de Dotación', [
+    'Descarga la plantilla (mismo formato que se usa para exportar).',
+    'Completa las columnas: Tipo, Destino, Cód. Insumo, Cantidad/Mes (Insumo y U.M. se completan solos si el código existe).',
+    'Sube el archivo: el sistema valida cada fila y muestra un resumen antes de aplicar los cambios.',
+    'Los datos no se pierden si faltan filas: solo se actualizan los códigos que vengan en el archivo.'
+  ]);
+}
+function descargarPlantilla(tipo){
+  var wb = XLSX.utils.book_new();
+  if(tipo==='dotacion'){
+    var data = [['Tipo','Destino','Cod. Insumo','Insumo','U.M.','Cantidad/Mes']];
+    DIST.slice(0,15).forEach(d=>data.push([d.tipo,d.destino,d.cod,d.insumo,d.um,d.cantidad]));
+    var ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, 'Dotacion');
+  } else {
+    var data2 = [['Cod. Insumo','Nombre','U.M.','Stock']];
+    INVENTARIO.forEach(i=>data2.push([i.cod,i.nombre,i.um,i.stock]));
+    var ws2 = XLSX.utils.aoa_to_sheet(data2);
+    XLSX.utils.book_append_sheet(wb, ws2, 'Inventario');
+  }
+  XLSX.writeFile(wb, tipo==='dotacion'?'Plantilla_Dotacion.xlsx':'Plantilla_Inventario.xlsx');
+  toast('📄 Plantilla descargada');
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER: INVENTARIO
+// ══════════════════════════════════════════════════════
+function renderInventario(){
+  var q = (document.getElementById('inv-search').value||'').toLowerCase();
+  var locked = CICLO.invRealizado;
+  var rows = INVENTARIO.filter(i=>!q || i.nombre.toLowerCase().includes(q));
+  document.getElementById('inv-tbody').innerHTML = rows.map(function(i){
+    var necesario = DIST.filter(d=>d.cod===i.cod).reduce((a,d)=>a+d.cantidad,0);
+    var st = i.stock>=necesario ? '<span class="badge b-green">OK</span>' : i.stock>=necesario*0.4 ? '<span class="badge b-orange">Justo</span>' : '<span class="badge b-red">Crítico</span>';
+    return '<tr><td>'+i.cod+'</td><td>'+i.nombre+'</td><td style="text-align:center">'+i.um+'</td>'+
+      '<td style="text-align:center"><input class="ed" type="number" value="'+i.stock+'" '+(locked?'disabled':'')+' onchange="editarStock(\''+i.cod+'\',this.value)"></td>'+
+      '<td style="text-align:center">'+fmt(necesario)+'</td><td style="text-align:center">'+st+'</td></tr>';
+  }).join('');
+
+  var alerta = locked
+    ? '<div class="alert a-green">🔒 Inventario <strong>confirmado</strong> el '+CICLO.invRealizadoFecha+'. Este stock ya fue restado del Plan de Compras. Para corregirlo, contacta a un administrador.</div>'
+    : '<div class="alert a-blue">Recuerda marcar el inventario como realizado antes del día 24, junto con la aprobación de dotación.</div>';
+  document.getElementById('inv-status-alert').innerHTML = alerta;
+  document.getElementById('btn-inv-realizado').disabled = locked;
+  document.getElementById('btn-inv-realizado').textContent = locked ? '🔒 Inventario Confirmado' : '✔ Marcar Inventario Realizado';
+
+  var totalStock = INVENTARIO.reduce((a,i)=>a+i.stock,0);
+  var criticos = INVENTARIO.filter(i=>{ var nec=DIST.filter(d=>d.cod===i.cod).reduce((a,d)=>a+d.cantidad,0); return i.stock < nec*0.4; }).length;
+  document.getElementById('inv-kpis').innerHTML = [
+    kpi('navy','Ítems en catálogo', INVENTARIO.length),
+    kpi('blue','Unidades en stock', fmt(totalStock)),
+    kpi(criticos>0?'red':'green','Ítems críticos', criticos),
+    kpi(locked?'green':'orange','Estado', locked?'Realizado':'En proceso')
+  ].join('');
+}
+function editarStock(cod,val){
+  var i = INVENTARIO.find(x=>x.cod===cod);
+  if(!i) return;
+  var anterior = i.stock;
+  i.stock = parseFloat(val)||0;
+  toast('✏️ Guardando stock: '+i.nombre);
+  postAccion({accion:'ajustarStock', cod:cod, stock:i.stock, anterior:anterior, usuario:_role});
+}
+async function marcarInventarioRealizado(){
+  if(CICLO.invRealizado) return;
+  CICLO.invRealizado = true;
+  CICLO.invRealizadoFecha = today().toLocaleDateString('es-BO');
+  HIST.unshift({fecha:CICLO.invRealizadoFecha, txt:'Almacén marcó el inventario como realizado. El stock quedó restado del Plan de Compras.'});
+  renderInventario();
+  toast('✔ Inventario confirmado. El stock ya se restó del Plan de Compras.');
+  await postAccion({accion:'marcarCiclo', mes:mesActual(), campo:'invRealizado', usuario:_role});
+}
+function abrirCargaMasivaInventario(){
+  abrirModalCarga('inventario','📤 Carga masiva de Inventario', [
+    'Descarga la plantilla con el catálogo de insumos.',
+    'Completa la columna Stock con el conteo físico.',
+    'Sube el archivo: se actualizan los stocks que coincidan por Código.',
+    'Cuando termines de cargar en todas las sucursales/almacenes, usa "Marcar Inventario Realizado".'
+  ]);
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER: PEDIDOS EXTRAORDINARIOS  (con corte automático día 24)
+// ══════════════════════════════════════════════════════
+var _pextTab = 'pendiente';
+function aplicaA(p){
+  // Si se aprueba antes/igual al día 24 del mes de la solicitud, entra al ciclo actual.
+  // Si se aprueba después del 24, pasa automáticamente al siguiente ciclo.
+  if(p.estado!=='aprobado') return '—';
+  var d = new Date(p.fechaAprob+'T12:00:00');
+  return d.getDate() <= 24 ? 'Ciclo actual' : 'Siguiente ciclo';
+}
+function switchPextTab(tab,btn){
+  _pextTab = tab;
+  document.querySelectorAll('#pext-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPedidos();
+}
+function renderPedidos(){
+  var pend = PEDIDOS_EXT.filter(p=>p.estado==='pendiente').length;
+  var aprob = PEDIDOS_EXT.filter(p=>p.estado==='aprobado').length;
+  var rech = PEDIDOS_EXT.filter(p=>p.estado==='rechazado').length;
+  document.getElementById('pext-cnt-pend').textContent = pend;
+  document.getElementById('pext-cnt-aprob').textContent = aprob;
+  document.getElementById('pext-cnt-rech').textContent = rech;
+  document.getElementById('pext-kpis').innerHTML = [
+    kpi('orange','Pendientes', pend),
+    kpi('green','Aprobadas', aprob),
+    kpi('red','Rechazadas', rech),
+    kpi('navy','Total del ciclo', PEDIDOS_EXT.length)
+  ].join('');
+  document.getElementById('pext-cutoff-alert').innerHTML = '📌 Solo los pedidos <strong>aprobados hasta el día 24</strong> del mes se suman al Plan de Compras de este ciclo. Los aprobados después del 24 se trasladan automáticamente al <strong>siguiente ciclo</strong>, para no descuadrar lo que ya se pidió al proveedor.';
+
+  var data = PEDIDOS_EXT.filter(p=>p.estado===_pextTab);
+  var titles = {pendiente:'Solicitudes Pendientes de Aprobación', aprobado:'Solicitudes Aprobadas', rechazado:'Solicitudes Rechazadas'};
+  document.getElementById('pext-table-title').textContent = titles[_pextTab];
+  var planif = _role==='planificacion' || _role==='admin';
+  document.getElementById('pext-tbody').innerHTML = data.map(function(p){
+    var aplica = aplicaA(p);
+    var aplicaBadge = aplica==='Ciclo actual' ? '<span class="badge b-green">Ciclo actual</span>' : aplica==='Siguiente ciclo' ? '<span class="badge b-purple">Siguiente ciclo</span>' : '<span class="badge b-navy">—</span>';
+    var accion = '—';
+    if(p.estado==='pendiente' && planif){
+      accion = '<button class="btn btn-green btn-sm" onclick="resolverPedido(\''+p.id+'\',\'aprobado\')">✔</button> <button class="btn btn-red btn-sm" onclick="resolverPedido(\''+p.id+'\',\'rechazado\')">✕</button>';
+    } else if(p.estado==='pendiente'){
+      accion = '<span class="badge b-orange">Esperando Planif.</span>';
+    }
+    return '<tr><td>'+p.fecha+'</td><td>'+p.solicitante+'</td><td>'+p.destino+'</td><td>'+p.insumo+'</td><td style="text-align:center">'+p.cant+'</td><td>'+p.motivo+'</td><td style="text-align:center">'+aplicaBadge+'</td><td style="text-align:center">'+accion+'</td></tr>';
+  }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray-text);padding:20px">Sin solicitudes en este estado</td></tr>';
+}
+async function resolverPedido(id,estado){
+  var p = PEDIDOS_EXT.find(x=>x.id===id);
+  if(!p) return;
+  p.estado = estado;
+  p.fechaAprob = today().toISOString().slice(0,10);
+  HIST.unshift({fecha:today().toLocaleDateString('es-BO'), txt:(estado==='aprobado'?'Se aprobó':'Se rechazó')+' la solicitud '+id+' ('+p.insumo+', '+p.destino+').'});
+  toast((estado==='aprobado'?'✅ Aprobado':'❌ Rechazado')+': '+p.insumo+' — '+p.destino);
+  renderPedidos();
+  await postAccion({accion:'actualizar', solicitud:id, estado:estado.toUpperCase()});
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER: PLAN DE COMPRAS
+// ══════════════════════════════════════════════════════
+function renderCompras(){
+  var map = {};
+  DIST.forEach(function(d){
+    var k=d.cod;
+    map[k] = map[k] || {cod:d.cod, insumo:d.insumo, um:d.um, suc:0, cedisOf:0};
+    if(d.tipo==='SUCURSAL') map[k].suc += d.cantidad; else map[k].cedisOf += d.cantidad;
+  });
+  var pextAprobCiclo = {};
+  PEDIDOS_EXT.forEach(function(p){ if(aplicaA(p)==='Ciclo actual'){ pextAprobCiclo[p.cod] = (pextAprobCiclo[p.cod]||0) + p.cant; } });
+
+  var rows = Object.values(map).sort((a,b)=>a.insumo.localeCompare(b.insumo));
+  var totNecesario=0, totComprar=0;
+  var body = rows.map(function(r){
+    var pext = pextAprobCiclo[r.cod]||0;
+    var necesario = r.suc + pext + r.cedisOf;
+    var stockConf = CICLO.invRealizado ? (INVENTARIO.find(i=>i.cod===r.cod)||{stock:0}).stock : 0;
+    var aComprar = Math.max(0, necesario - stockConf);
+    totNecesario += necesario; totComprar += aComprar;
+    return '<tr><td>'+r.insumo+'</td><td style="text-align:center">'+r.cod+'</td><td style="text-align:center">'+r.um+'</td>'+
+      '<td style="text-align:center">'+fmt(r.suc)+'</td><td style="text-align:center;color:var(--purple)">'+(pext?'+'+fmt(pext):'—')+'</td>'+
+      '<td style="text-align:center">'+fmt(r.cedisOf)+'</td><td style="text-align:center;font-weight:700">'+fmt(necesario)+'</td>'+
+      '<td style="text-align:center">'+(CICLO.invRealizado?fmt(stockConf):'<span style="color:var(--gray-text)">sin confirmar</span>')+'</td>'+
+      '<td style="text-align:center;font-weight:700;color:'+(aComprar>0?'var(--red)':'var(--green)')+'">'+fmt(aComprar)+'</td></tr>';
+  }).join('');
+  document.getElementById('comp-tbody').innerHTML = body;
+  document.getElementById('comp-tfoot').innerHTML = '<tr><td colspan="6">TOTAL</td><td>'+fmt(totNecesario)+'</td><td></td><td>'+fmt(totComprar)+'</td></tr>';
+
+  document.getElementById('comp-kpis').innerHTML = [
+    kpi('navy','Insumos', rows.length),
+    kpi('blue','Unidades necesarias', fmt(totNecesario)),
+    kpi(totComprar>0?'red':'green','Unidades a comprar', fmt(totComprar)),
+    kpi(CICLO.comprasConfirmadas?'green':'orange','Plan', CICLO.comprasConfirmadas?'Confirmado':'Pendiente')
+  ].join('');
+
+  var alerta='';
+  if(!CICLO.dotAprobada) alerta = '<div class="alert a-red">⚠️ La dotación de este ciclo aún no fue <strong>aprobada por Planificación</strong>. Las cantidades pueden cambiar.</div>';
+  else if(!CICLO.invRealizado) alerta = '<div class="alert a-gold">⚠️ El inventario aún no fue confirmado — el Plan de Compras está mostrando la necesidad <strong>bruta</strong>, sin restar stock.</div>';
+  else if(CICLO.comprasConfirmadas) alerta = '<div class="alert a-green">✅ Plan de Compras <strong>confirmado</strong> el '+CICLO.comprasConfirmadasFecha+'. Ya puedes usarlo para pedir a los proveedores.</div>';
+  else alerta = '<div class="alert a-blue">Todo listo para descargar y confirmar el Plan de Compras.</div>';
+  document.getElementById('comp-status-alert').innerHTML = alerta;
+  document.getElementById('btn-compras-confirmar').disabled = CICLO.comprasConfirmadas;
+}
+async function confirmarPlanCompras(){
+  if(CICLO.comprasConfirmadas) return;
+  CICLO.comprasConfirmadas = true;
+  CICLO.comprasConfirmadasFecha = today().toLocaleDateString('es-BO');
+  HIST.unshift({fecha:CICLO.comprasConfirmadasFecha, txt:'Almacén descargó y confirmó el Plan de Compras del ciclo. Se solicitó a proveedores.'});
+  renderCompras();
+  toast('✔ Plan de Compras confirmado. Ya se sabe exactamente cuánto se pidió a cada proveedor.');
+  await postAccion({accion:'marcarCiclo', mes:mesActual(), campo:'comprasConfirmadas', usuario:_role});
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER: DESPACHO
+// ══════════════════════════════════════════════════════
+function renderDespacho(){
+  var locked = CICLO.despachoConfirmado;
+  document.getElementById('desp-count').textContent = DESPACHO.length + ' líneas de despacho';
+  var icon = {SUCURSAL:'🏪',OFICINA:'🏢',CEDIS:'🏭'};
+  document.getElementById('desp-tbody').innerHTML = DESPACHO.map(function(d){
+    var pend = d.dotacion - d.distribuido;
+    var st = pend<=0 ? '<span class="badge b-green">Completo</span>' : d.distribuido>0 ? '<span class="badge b-orange">Parcial</span>' : '<span class="badge b-red">Pendiente</span>';
+    return '<tr><td>'+d.destino+'</td><td>'+icon[d.tipo]+' '+d.tipo+'</td><td>'+d.insumo+'</td><td style="text-align:center">'+d.um+'</td>'+
+      '<td style="text-align:center">'+fmt(d.dotacion)+'</td>'+
+      '<td style="text-align:center"><input class="ed" type="number" value="'+d.distribuido+'" '+(locked?'disabled':'')+' onchange="editarDistribuido('+d.id+',this.value)"></td>'+
+      '<td style="text-align:center">'+fmt(Math.max(0,pend))+'</td><td style="text-align:center">'+st+'</td></tr>';
+  }).join('');
+
+  var totalDot = DESPACHO.reduce((a,d)=>a+d.dotacion,0), totalDist = DESPACHO.reduce((a,d)=>a+d.distribuido,0);
+  document.getElementById('desp-kpis').innerHTML = [
+    kpi('navy','Dotación total', fmt(totalDot)),
+    kpi('blue','Distribuido', fmt(totalDist)),
+    kpi(totalDot-totalDist>0?'orange':'green','Pendiente', fmt(Math.max(0,totalDot-totalDist))),
+    kpi(locked?'green':'gray','Ciclo', locked?'Cerrado':'Abierto')
+  ].join('');
+
+  var alerta = locked
+    ? '<div class="alert a-green">🔒 Despacho <strong>confirmado</strong>. El ciclo se cerró y la dotación validada ya se heredó automáticamente al siguiente mes.</div>'
+    : (!CICLO.comprasConfirmadas ? '<div class="alert a-gold">⚠️ El Plan de Compras de este ciclo aún no fue confirmado por Almacén.</div>' : '<div class="alert a-blue">Registra lo despachado a cada destino y confirma cuando termines, para cerrar el ciclo.</div>');
+  document.getElementById('desp-status-alert').innerHTML = alerta;
+  document.getElementById('btn-desp-confirmar').disabled = locked;
+}
+// Reescribe el consolidado de Despacho en el Sheet (igual formato que ya usa tu Apps Script:
+// guardarDespacho_ calcula la diferencia y descuenta del Inventario solo lo nuevo).
+var _syncDespachoTimer = null;
+function buildFilasDespacho(){
+  return DESPACHO.map(function(d){
+    return {canal:d.tipo, destino:d.destino, cod:d.cod, insumo:d.insumo, um:d.um, cantidad:d.distribuido, clave:claveDespacho(d.tipo,d.destino,d.cod)};
+  }).filter(function(f){ return f.cantidad!==0; });
+}
+function programarSyncDespacho(){
+  clearTimeout(_syncDespachoTimer);
+  _syncDespachoTimer = setTimeout(function(){ postAccion({accion:'guardarDespacho', usuario:_role, filas:buildFilasDespacho()}); }, 1200);
+}
+function editarDistribuido(id,val){
+  var d = DESPACHO.find(x=>x.id===id);
+  if(!d) return;
+  d.distribuido = parseFloat(val)||0;
+  renderDespacho();
+  programarSyncDespacho();
+}
+function completarTodoDespacho(){
+  if(CICLO.despachoConfirmado) return;
+  DESPACHO.forEach(d=>d.distribuido=d.dotacion);
+  renderDespacho();
+  toast('✔ Todas las líneas marcadas como completas — guardando en el Sheet...');
+  programarSyncDespacho();
+}
+async function confirmarDespachoYCerrarCiclo(){
+  if(CICLO.despachoConfirmado) return;
+  CICLO.despachoConfirmado = true;
+  HIST.unshift({fecha:today().toLocaleDateString('es-BO'), txt:'Almacén confirmó el despacho. El ciclo se cerró y comienza uno nuevo.'});
+  renderDespacho();
+  toast('🔒 Despacho confirmado. Ciclo cerrado — la dotación se hereda automáticamente al siguiente mes.');
+  clearTimeout(_syncDespachoTimer);
+  await postAccion({accion:'guardarDespacho', usuario:_role, filas:buildFilasDespacho()});
+  await postAccion({accion:'marcarCiclo', mes:mesActual(), campo:'despachoConfirmado', usuario:_role});
+  setTimeout(function(){
+    if(confirm('El ciclo se cerró. ¿Quieres avanzar la fecha simulada al 1 del siguiente mes para ver un nuevo ciclo?')){
+      reiniciarCiclo();
+    }
+  }, 600);
+}
+async function reiniciarCiclo(){
+  var d = today();
+  SIM_DATE = new Date(d.getFullYear(), d.getMonth()+1, 1, 12, 0, 0);
+  document.getElementById('sim-date').value = SIM_DATE.toISOString().slice(0,10);
+  DESPACHO.forEach(function(x){ x.distribuido=0; });
+  await refrescarCicloDelMes(); // el mes nuevo aún no tiene fila en Control_Ciclo → arranca todo en pendiente
+  nav('inicio');
+  toast('🔄 Nuevo ciclo iniciado. La dotación (Plan. Sucursal / Plan. Oficina) se mantiene igual: solo hay que revalidarla.');
+}
+
+// ══════════════════════════════════════════════════════
+//  MODAL DE CARGA MASIVA (genérico, dotación e inventario)
+// ══════════════════════════════════════════════════════
+var _cargaTipo = null;
+function abrirModalCarga(tipo,title,pasos){
+  _cargaTipo = tipo;
+  document.getElementById('modal-carga-title').textContent = title;
+  document.getElementById('modal-carga-steps').innerHTML = pasos.map((p,i)=>'<div class="step-row"><div class="step-num">'+(i+1)+'</div><div style="font-size:12.5px">'+p+'</div></div>').join('');
+  document.getElementById('modal-carga-preview').innerHTML = '';
+  document.getElementById('file-input').value = '';
+  document.getElementById('modal-carga').classList.add('open');
+}
+function cerrarModal(id){ document.getElementById(id).classList.remove('open'); }
+function onFileSelected(files){
+  if(!files || !files.length) return;
+  var file = files[0];
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      var wb = XLSX.read(e.target.result, {type:'binary'});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var rows = XLSX.utils.sheet_to_json(ws, {header:1});
+      procesarCargaMasiva(rows);
+    }catch(err){
+      toast('⚠️ No se pudo leer el archivo: '+err.message);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+function procesarCargaMasiva(rows){
+  var header = (rows[0]||[]).map(h=>String(h||'').trim().toLowerCase());
+  var body = rows.slice(1).filter(r=>r&&r.length&&r[0]!==undefined&&r[0]!=='');
+  var ok=0, warn=0, errores=[];
+  var filasParaGuardar=[];
+
+  if(_cargaTipo==='dotacion'){
+    var iTipo=header.indexOf('tipo'), iDest=header.indexOf('destino'), iCod=header.indexOf('cod. insumo'), iCant=header.indexOf('cantidad/mes');
+    body.forEach(function(r,idx){
+      var tipo=String(r[iTipo]||'').toUpperCase().trim(), dest=String(r[iDest]||'').trim(), cod=normCod(r[iCod]), cant=parseFloat(r[iCant]);
+      var existing = DIST.find(d=>d.tipo===tipo && d.destino===dest && d.cod===cod);
+      if(existing && !isNaN(cant)){
+        existing.cantidad = cant; existing.origen='Carga masiva'; ok++;
+        filasParaGuardar.push({tipo:tipo, destino:dest, cod:cod, cantidad:cant});
+      } else { warn++; errores.push('Fila '+(idx+2)+': no se encontró combinación Tipo/Destino/Código existente ('+tipo+' · '+dest+' · '+cod+').'); }
+    });
+    if(filasParaGuardar.length) postAccion({accion:'guardarDotacion', usuario:_role, filas:filasParaGuardar});
+  } else {
+    var iCodI=header.indexOf('cod. insumo'), iStock=header.indexOf('stock');
+    body.forEach(function(r,idx){
+      var cod=normCod(r[iCodI]), stock=parseFloat(r[iStock]);
+      var existing = INVENTARIO.find(i=>i.cod===cod);
+      if(existing && !isNaN(stock)){
+        existing.stock=stock; ok++;
+        filasParaGuardar.push({cod:cod, stock:stock});
+      } else { warn++; errores.push('Fila '+(idx+2)+': código '+cod+' no encontrado en el catálogo.'); }
+    });
+    if(filasParaGuardar.length) postAccion({accion:'guardarInventarioMasivo', usuario:_role, filas:filasParaGuardar});
+  }
+
+  var html = '<div class="alert '+(warn>0?'a-gold':'a-green')+'">'+(warn>0?'⚠️':'✅')+' Se procesaron <strong>'+(ok+warn)+'</strong> filas: <strong>'+ok+' aplicadas</strong>'+(warn>0?', <strong>'+warn+' con observaciones</strong>':'')+'. Guardando en el Sheet en segundo plano...</div>';
+  if(errores.length) html += '<div style="font-size:11.5px;color:var(--gray-text);max-height:160px;overflow-y:auto">'+errores.slice(0,10).map(e=>'<div>• '+e+'</div>').join('')+(errores.length>10?'<div>… y '+(errores.length-10)+' más.</div>':'')+'</div>';
+  html += '<div style="margin-top:14px;display:flex;gap:8px"><button class="btn btn-navy btn-sm" onclick="cerrarModal(\'modal-carga\')">Cerrar y ver cambios</button></div>';
+  document.getElementById('modal-carga-preview').innerHTML = html;
+
+  toast('📤 Carga masiva procesada: '+ok+' filas aplicadas');
+  if(_cargaTipo==='dotacion') renderDistribucion(); else renderInventario();
+}
+
+// drag & drop
+var dz = document.getElementById('dropzone');
+['dragover','dragleave','drop'].forEach(function(ev){
+  dz.addEventListener(ev, function(e){
+    e.preventDefault();
+    if(ev==='dragover') dz.classList.add('drag');
+    if(ev==='dragleave') dz.classList.remove('drag');
+    if(ev==='drop'){ dz.classList.remove('drag'); onFileSelected(e.dataTransfer.files); }
+  });
+});
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+var RENDERS = { inicio:renderInicio, distribucion:renderDistribucion, inventario:renderInventario, pedidos:renderPedidos, compras:renderCompras, despacho:renderDespacho };
+document.getElementById('top-role-name').textContent = ROLES[_role];
+document.getElementById('role-switch').value = _role;
+renderInicio();
+
+(async function iniciar(){
+  if(!MODO_REAL){ setConnStatus('warn','Modo muestra (desactivado)'); return; }
+  setConnStatus('loading','Conectando...');
+  try{
+    await cargarDatosReales();
+    poblarFiltrosDist_reset();
+    var cur = document.querySelector('.page.active').id.replace('page-','');
+    RENDERS[cur] && RENDERS[cur]();
+    setConnStatus('ok','Conectado a tu Sheet · '+DIST.length+' filas de dotación');
+    toast('✅ Conectado — mostrando datos reales de tu Sheet ('+DIST.length+' filas de dotación, '+INVENTARIO.length+' insumos).');
+  }catch(err){
+    console.error('No se pudo cargar el Sheet real, se mantienen datos de muestra:', err);
+    setConnStatus('err','Sin conexión real — usando datos de muestra');
+    toast('⚠️ No se pudo leer el Sheet real: '+err.message+'. Abre la consola (F12) para más detalle. Mostrando datos de muestra ('+DIST.length+' filas).', 7000);
+  }
+})();
+function setConnStatus(tipo,texto){
+  var dot=document.getElementById('conn-dot'), lbl=document.getElementById('conn-lbl'), foot=document.getElementById('sidebar-foot');
+  var colores={loading:'#f59e0b', ok:'#22c55e', err:'#ef4444', warn:'#f59e0b'};
+  if(dot) dot.style.background = colores[tipo]||'#999';
+  if(lbl) lbl.textContent = texto;
+  if(foot) foot.innerHTML = (tipo==='ok'
+    ? '🟢 Conectado a tu Sheet real.<br>Los cambios que hagas se guardan de verdad.'
+    : tipo==='err'
+    ? '🔴 No se pudo conectar.<br>Mostrando datos de muestra.<br>Nada se guarda en tu Sheet.'
+    : '🟡 Conectando con tu Sheet...');
+}
+function poblarFiltrosDist_reset(){
+  // limpia los <option> ya poblados para que se reconstruyan con los datos reales
+  var sel = document.getElementById('dist-fil-reg');
+  if(sel) sel.innerHTML = '';
+}
+</script>
+</body>
+</html>
